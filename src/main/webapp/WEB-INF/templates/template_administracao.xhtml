@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8' ?> 
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html">
+
+    <h:head>
+
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <h:outputStylesheet name="estilos.css" library="css"/>
+        <title>Gestão de Armazem</title>
+    </h:head>
+
+    <h:body>
+        <div class="container">
+            <div class="header">
+                <ui:insert name="top">
+
+                    <h1>🌟 Gestão de armazem</h1>
+                    <p>Skylink</p>
+
+                </ui:insert>
+            </div>
+
+            <nav class="nav">
+                <ui:insert name="left">
+                    <h3>Menu Principal</h3>
+                    <ul>
+                        <li><a href="index.faces">Início</a></li>
+                        <li><a href="armazem/novo_cadastro_armazem.faces">Cadastro em armazem</a></li>
+                        <li><a href="armazem/lista_entre_datas.faces">💼 Pesquisa entre datas </a></li>
+                        <li><a href="armazem/lista_por_categoria.faces">💼 Pesquisa por categoria </a></li>
+
+                        <li><a href="#">💼 Lista </a></li>
+                      
+
+                    </ul>
+
+
+                </ui:insert>
+            </nav>
+            <main class="main">
+                <ui:insert name="content">Content</ui:insert>
+            </main>
+
+            <footer class="footer">
+                <ui:insert name="bottom">
+
+                    <p>&copy; 2026 - Desenvolvido pelo grupo Skylink</p>
+                    <p>📧 contato@exemplo.com | 📱 (244) 99999-9999</p>
+
+
+
+                </ui:insert>
+            </footer>
+        </div>
+    </h:body>
+
+</html>

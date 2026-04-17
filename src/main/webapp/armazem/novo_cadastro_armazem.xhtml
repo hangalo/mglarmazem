@@ -1,26 +1,79 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui">
 
     <body>
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
 
-            <ui:define name="top">
-                top
-            </ui:define>
-
-            <ui:define name="left">
-                left
-            </ui:define>
-
             <ui:define name="content">
-                <h1>Novo Protudo</h1>
-            </ui:define>
 
-            <ui:define name="bottom">
-                bottom
+                <h2 style="margin-bottom:20px;">Cadastro de Produto / Armazém</h2>
+
+                <h:form id="frmArmazem">
+
+           
+                    <p:panel header="Dados do Produto" style="max-width:600px; margin:auto;">
+
+                        <h:panelGrid columns="2" cellpadding="10" style="width:100%;">
+
+                           
+                            <h:outputLabel value="Preço Produto:"/>
+                            <p:inputNumber value="#{armazem.armazem.precoProduto}"
+                                           symbol="Kz "
+                                           decimalPlaces="2"
+                                           required="true"
+                                           requiredMessage="Informe o preço"/>
+
+
+                            <h:outputLabel value="Quantidade:"/>
+                            <p:inputNumber value="#{armazem.armazem.quantidadeProduto}"
+                                           required="true"
+                                           requiredMessage="Informe a quantidade"/>
+
+
+                            <h:outputLabel value="Data de Compra:"/>
+                            <p:datePicker value="#{armazem.armazem.dataCompra}"
+                                          pattern="yyyy-MM-dd"
+                                          showIcon="true"/>
+
+
+                            <h:outputLabel value="ID Produto:"/>
+                            <p:inputNumber value="#{armazem.armazem.idProduto}"
+                                           required="true"
+                                           requiredMessage="Informe o produto"/>
+
+                        </h:panelGrid>
+
+                        <p:separator/>
+
+                        <div style="text-align:center; margin-top:15px;">
+
+                            <p:commandButton value="Guardar"
+                                             action="#{armazem.salvar}"
+                                             update="frmArmazem"
+                                             icon="pi pi-save"
+                                             styleClass="ui-button-success"
+                                             style="margin-right:10px;"/>
+
+                            <p:commandButton value="Limpar"
+                                             action="#{armazem.novo}"
+                                             update="frmArmazem"
+                                             icon="pi pi-refresh"
+                                             styleClass="ui-button-secondary"
+                                             immediate="true"/>
+
+                        </div>
+
+                    </p:panel>
+
+                </h:form>
+
             </ui:define>
 
         </ui:composition>

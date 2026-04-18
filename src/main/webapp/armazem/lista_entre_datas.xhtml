@@ -1,7 +1,10 @@
 <?xml version='1.0' encoding='UTF-8' ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-      xmlns:ui="jakarta.faces.facelets">
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
 
     <body>
 
@@ -9,7 +12,129 @@
 
 
             <ui:define name="content">
-                content
+              <h:form id="frmDatas">
+
+                    <!-- Filtro -->
+                    <p:panel header="Pesquisa entre Datas" style="max-width:700px; margin:auto 0 20px 0;">
+                        <h:panelGrid columns="4" cellpadding="10" style="width:100%;">
+
+                            <h:outputLabel value="Data Início:" for="dtInicio"/>
+                            <p:datePicker id="dtInicio"
+                                          value="#{armazem.dataInicio}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data início"
+                                          maxdate="#{armazem.hoje}"/>
+
+                            <h:outputLabel value="Data Fim:" for="dtFim"/>
+                            <p:datePicker id="dtFim"
+                                          value="#{armazem.dataFim}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data fim"
+                                          maxdate="#{armazem.hoje}"/>
+
+                        </h:panelGrid>
+
+                        <p:separator/>
+
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <p:commandButton value="Pesquisar"
+                                             action="#{armazem.pesquisarPorDatas}"
+                                             update="frmDatas msgs"
+                                             icon="pi pi-search"
+                                             styleClass="ui-button-info"/>
+
+                            <p:commandButton value="Limpar"
+                                             action="#{armazem.limparFiltros}"
+                                             update="frmDatas msgs"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             immediate="true"/>
+                        </div>
+                    </p:panel>
+
+                    <!-- Resultados -->
+                    <p:panel header="Resultados">
+
+                        <!-- Totais -->
+                        <p:toolbar style="margin-bottom:10px;">
+                            <p:toolbarGroup align="left">
+                                <h:outputText value="Total de registos: "
+                                              style="font-weight:bold; margin-right:5px;"/>
+                                <h:outputText value="#{armazem.listaArmazens.size()}"/>
+                            </p:toolbarGroup>
+                            <p:toolbarGroup align="right">
+                                <h:outputText value="Valor total: "
+                                              style="font-weight:bold; margin-right:5px;"/>
+                                <h:outputText value="#{armazem.totalPreco}">
+                                    <f:convertNumber pattern="#,##0.00"
+                                                     currencySymbol="Kz "
+                                                     type="currency"/>
+                                </h:outputText>
+                            </p:toolbarGroup>
+                        </p:toolbar>
+
+                        <p:dataTable id="tblDatas"
+                                     value="#{armazem.listaArmazens}"
+                                     var="a"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorTemplate="{FirstPageLink} {PreviousPageLink}
+                                         {PageLinks} {NextPageLink} {LastPageLink}
+                                         {RowsPerPageDropdown}"
+                                     rowsPerPageTemplate="5,10,20,50"
+                                     emptyMessage="Nenhum registo encontrado no período."
+                                     styleClass="ui-datatable-striped"
+                                     sortMode="multiple"
+                                     style="width:100%;">
+
+                            <p:column headerText="#"
+                                      style="width:50px; text-align:center;">
+                                <h:outputText value="#{armazem.listaArmazens.indexOf(a) + 1}"/>
+                            </p:column>
+
+                            <p:column headerText="ID" sortBy="#{a.idArmazem}"
+                                      style="width:60px; text-align:center;">
+                                <h:outputText value="#{a.idArmazem}"/>
+                            </p:column>
+
+                            <p:column headerText="ID Produto" sortBy="#{a.idProduto}"
+                                      style="text-align:center;">
+                                <h:outputText value="#{a.idProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Preço (Kz)" sortBy="#{a.precoProduto}">
+                                <h:outputText value="#{a.precoProduto}">
+                                    <f:convertNumber pattern="#,##0.00"
+                                                     currencySymbol="Kz "
+                                                     type="currency"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Quantidade" sortBy="#{a.quantidadeProduto}"
+                                      style="text-align:center;">
+                                <h:outputText value="#{a.quantidadeProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Data Compra" sortBy="#{a.dataCompra}">
+                                <h:outputText value="#{a.dataCompra}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Data Registo" sortBy="#{a.dataRegisto}">
+                                <h:outputText value="#{a.dataRegisto}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                </h:form>
             </ui:define>
 
             <ui:define name="bottom">

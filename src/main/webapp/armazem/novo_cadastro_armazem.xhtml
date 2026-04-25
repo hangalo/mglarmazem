@@ -9,36 +9,36 @@
     <body>
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
             <ui:define name="content">
-
-                <p:growl id="msgs" showDetail="true" life="4000"/>
-
                 <h:form id="frmArmazem">
-                    <p:panel header="Cadastro de Produto no Armazém"
-                             style="max-width:620px; margin:auto;">
 
+                    <p:growl id="msgs" showDetail="true" life="4000"/>
+
+                    <p:panel header="Cadastro de Produto no Armazém" style="max-width:620px; margin:auto 0 20px 0;">
                         <h:panelGrid columns="2" cellpadding="10" style="width:100%;">
 
-                            <h:outputLabel value="ID Produto:" for="idProduto"/>
-                            <p:inputNumber id="idProduto"
-                                           value="#{armazem.armazem.idProduto}"
-                                           required="true"
-                                           requiredMessage="Informe o ID do produto"/>
+                            <h:outputLabel value="Código do Produto:" for="idProduto"/>
+                            <p:inputText id="idProduto"
+                                         value="#{armazem.armazem.idProduto}"
+                                         required="true"
+                                         requiredMessage="Informe o Código do produto">
+                                <f:convertNumber integerOnly="true"/>
+                            </p:inputText>
 
                             <h:outputLabel value="Preço (Kz):" for="preco"/>
-                            <p:inputNumber id="preco"
-                                           value="#{armazem.armazem.precoProduto}"
-                                           symbol="Kz "
-                                           symbolPosition="prefix"
-                                           decimalPlaces="2"
-                                           required="true"
-                                           requiredMessage="Informe o preço"/>
+                            <p:inputText id="preco"
+                                         value="#{armazem.armazem.precoProduto}"
+                                         required="true"
+                                         requiredMessage="Informe o preço">
+                                <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
+                            </p:inputText>
 
                             <h:outputLabel value="Quantidade:" for="qtd"/>
-                            <p:inputNumber id="qtd"
-                                           value="#{armazem.armazem.quantidadeProduto}"
-                                           required="true"
-                                          
-                                           requiredMessage="Informe a quantidade"/>
+                            <p:inputText id="qtd"
+                                         value="#{armazem.armazem.quantidadeProduto}"
+                                         required="true"
+                                         requiredMessage="Informe a quantidade">
+                                <f:convertNumber integerOnly="true"/>
+                            </p:inputText>
 
                             <h:outputLabel value="Data de Compra:" for="dataCompra"/>
                             <p:datePicker id="dataCompra"
@@ -54,10 +54,11 @@
                         <div style="text-align:center; margin-top:15px;">
                             <p:commandButton value="Guardar"
                                              action="#{armazem.salvar}"
-                                             update="frmArmazem msgs"
+                                             update="frmArmazem"
                                              icon="pi pi-save"
                                              styleClass="ui-button-success"
                                              style="margin-right:10px;"/>
+
                             <p:commandButton value="Limpar"
                                              action="#{armazem.novo}"
                                              update="frmArmazem"
@@ -67,7 +68,6 @@
                         </div>
                     </p:panel>
                 </h:form>
-
             </ui:define>
         </ui:composition>
     </body>

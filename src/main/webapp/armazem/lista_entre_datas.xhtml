@@ -10,11 +10,9 @@
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
 
-
             <ui:define name="content">
-              <h:form id="frmDatas">
+                <h:form id="frmDatas">
 
-                    <!-- Filtro -->
                     <p:panel header="Pesquisa entre Datas" style="max-width:700px; margin:auto 0 20px 0;">
                         <h:panelGrid columns="4" cellpadding="10" style="width:100%;">
 
@@ -56,10 +54,9 @@
                         </div>
                     </p:panel>
 
-                    <!-- Resultados -->
                     <p:panel header="Resultados">
 
-                        <!-- Totais -->
+
                         <p:toolbar style="margin-bottom:10px;">
                             <p:toolbarGroup align="left">
                                 <h:outputText value="Total de registos: "
@@ -83,8 +80,8 @@
                                      paginator="true"
                                      rows="10"
                                      paginatorTemplate="{FirstPageLink} {PreviousPageLink}
-                                         {PageLinks} {NextPageLink} {LastPageLink}
-                                         {RowsPerPageDropdown}"
+                                     {PageLinks} {NextPageLink} {LastPageLink}
+                                     {RowsPerPageDropdown}"
                                      rowsPerPageTemplate="5,10,20,50"
                                      emptyMessage="Nenhum registo encontrado no período."
                                      styleClass="ui-datatable-striped"
@@ -96,12 +93,7 @@
                                 <h:outputText value="#{armazem.listaArmazens.indexOf(a) + 1}"/>
                             </p:column>
 
-                            <p:column headerText="ID" sortBy="#{a.idArmazem}"
-                                      style="width:60px; text-align:center;">
-                                <h:outputText value="#{a.idArmazem}"/>
-                            </p:column>
-
-                            <p:column headerText="ID Produto" sortBy="#{a.idProduto}"
+                            <p:column headerText="Codigo do Produto" sortBy="#{a.idProduto}"
                                       style="text-align:center;">
                                 <h:outputText value="#{a.idProduto}"/>
                             </p:column>
@@ -109,9 +101,7 @@
                             <p:column headerText="Preço (Kz)" sortBy="#{a.precoProduto}">
                                 <h:outputText value="#{a.precoProduto}">
                                     <f:convertNumber pattern="#,##0.00"
-                                                     currencySymbol="Kz "
-                                                     type="currency"/>
-                                </h:outputText>
+                                                     currencySymbol="Kz "        type="currency"/></h:outputText>
                             </p:column>
 
                             <p:column headerText="Quantidade" sortBy="#{a.quantidadeProduto}"

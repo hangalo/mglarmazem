@@ -27,7 +27,8 @@ public class ProdutoBean implements Serializable {
 
     @PostConstruct
     public void init() {
-        novo(); 
+        novo();
+        listar();
     }
 
     public void novo() {

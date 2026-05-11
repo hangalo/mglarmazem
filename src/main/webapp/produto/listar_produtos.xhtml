@@ -3,61 +3,87 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:p="http://primefaces.org/ui"
-      xmlns:h="jakarta.faces.html">
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
 
     <body>
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
 
-            <ui:define name="top">
-               Lista dos Produtos
-            </ui:define>
+            <ui:define name="content">
 
-            <ui:define name="bottom">
-                <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
-                             paginator="true" rows="5" stripedRows="true" style="margin-top:20px;"
-                             emptyMessage="Nenhum produto encontrado.">
+                <h:form id="frmTabela">
+                    <p:growl id="msgs" showDetail="true" />
 
-                    <p:column headerText="ID" width="50">
-                        <h:outputText value="#{p.idProduto}" />
-                    </p:column>
+                    <p:panel header="Gestão de Produtos" style="max-width:1000px; margin: 0 auto;">
 
-                    <p:column headerText="Descrição">
-                        <h:outputText value="#{p.descricaoProduto}" />
-                    </p:column>
 
-                    <p:column headerText="Categoria">
-                        <h:outputText value="#{p.categoria}" />
-                    </p:column>
+                        <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
+                                     paginator="true" rows="10" stripedRows="true" style="margin-top:20px;"
+                                     emptyMessage="Nenhum produto encontrado.">
 
-                    <p:column headerText="Ações" width="100" style="text-align: center">
+                            <p:column headerText="Código do Produto" width="180" style="text-align: center;">
+                                <h:outputText value="#{p.idProduto}" />
+                            </p:column>
 
-                        <p:commandButton icon="pi pi-pencil" 
-                                         action="#{produtoBean.prepararEditar(p)}" 
-                                         update=":frmProduto" 
-                                         process="@this" 
-                                         styleClass="ui-button-flat ui-button-warning" 
-                                         title="Editar Produto"/>
+                            <p:column headerText="Descrição"  width="300" style="text-align: center;">
+                                <h:outputText value="#{p.descricaoProduto}" />
+                            </p:column>
+                            
+                            <p:column headerText="Categoria" style="text-align: center;">
+                                <h:outputText value="#{p.categoria}" />
+                            </p:column>
 
-                        <p:commandButton icon="pi pi-trash" 
-                                         action="#{produtoBean.eliminar(p.idProduto)}" 
-                                         update="tabelaProdutos :frmProduto:msgs" 
-                                         styleClass="ui-button-flat ui-button-danger"
-                                         title="Eliminar Produto">
-                            <p:confirm header="Confirmação" message="Deseja eliminar este produto?" icon="pi pi-info-circle" />
-                        </p:commandButton>
+                            <p:column headerText="Ações" width="120" style="text-align: center;">
+                                <p:commandButton icon="pi pi-pencil" 
+                                                 action="#{produtoBean.prepararEditar(p)}" 
+                                                 update=":frmDialogo:painelDados" 
+                                                 oncomplete="PF('dlgProduto').show()" 
+                                                 process="@this" 
+                                                 styleClass="ui-button-flat ui-button-warning" />
 
-                    </p:column>
-                </p:dataTable>
+                                <p:commandButton icon="pi pi-trash" 
+                                                 action="#{produtoBean.eliminar(p.idProduto)}" 
+                                                 update="tabelaProdutos :frmTabela:msgs" 
+                                                 styleClass="ui-button-flat ui-button-danger">
+                                    <p:confirm header="Confirmação" message="Deseja eliminar este produto?" icon="pi pi-exclamation-triangle" />
+                                </p:commandButton>
+                            </p:column>
+                        </p:dataTable>
+                    </p:panel>
+                </h:form>
 
-                <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                <p:dialog header="Dados do Produto" widgetVar="dlgProduto" modal="true" 
+                          resizable="false" closeOnEscape="true" responsive="true">
+                    <h:form id="frmDialogo">
+                        <h:panelGrid id="painelDados" columns="2" cellpadding="7">
+                            <p:outputLabel value="Descrição:" for="desc" style="font-weight:bold" />
+                            <p:inputText id="desc" value="#{produtoBean.produto.descricaoProduto}" 
+                                         required="true" size="40" />
+
+                        </h:panelGrid>
+
+                        <p:spacer height="15" />
+
+                        <div style="text-align: right;">
+                            <p:commandButton value="Cancelar" onclick="PF('dlgProduto').hide()" 
+                                             type="button" styleClass="ui-button-secondary ui-button-flat" />
+
+                            <p:commandButton value="Guardar" action="#{produtoBean.salvar}" 
+                                             update=":frmTabela:tabelaProdutos :frmTabela:msgs" 
+                                             oncomplete="if (!args.validationFailed) PF('dlgProduto').hide()" 
+                                             icon="pi pi-save" style="margin-left:10px" />
+                        </div>
+                        <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
                     <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
+                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat" />
                 </p:confirmDialog>
+                    </h:form>
+                </p:dialog>
+
+                
 
             </ui:define>
-
         </ui:composition>
-
     </body>
 </html>

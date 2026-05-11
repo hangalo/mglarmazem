@@ -8,19 +8,26 @@ import java.util.logging.Logger;
 import skylink.mglarmazem.bdutil.ConnectionDB;
 import skylink.mglarmazem.modelo.Armazem;
 
+/**
+ * @author Henriques
+ */
 public class ArmazemDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ArmazemDAO.class.getName());
 
-    private static final String INSERT  = "INSERT INTO armazem(data_registo, preco_produto, data_compra, quantidade_produto, id_produto) VALUES (?, ?, ?, ?, ?)";
-    private static final String UPDATE  = "UPDATE armazem SET data_registo=?, preco_produto=?, data_compra=?, quantidade_produto=?, id_produto=? WHERE id_armazem=?";
-    private static final String DELETE  = "DELETE FROM armazem WHERE id_armazem=?";
-    private static final String LISTAR  = "SELECT * FROM armazem ORDER BY data_registo DESC";
+    private static final String INSERT = "INSERT INTO armazem(data_registo, preco_produto, data_compra, quantidade_produto, id_produto) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE armazem SET data_registo=?, preco_produto=?, data_compra=?, quantidade_produto=?, id_produto=? WHERE id_armazem=?";
+    private static final String DELETE = "DELETE FROM armazem WHERE id_armazem=?";
+    private static final String LISTAR = "SELECT * FROM armazem ORDER BY data_registo DESC";
+    
+    private static final String PESQUISAR_POR_CATEGORIA = 
+        "SELECT a.* FROM armazem a " +
+        "INNER JOIN produto p ON a.id_produto = p.id_produto " +
+        "WHERE p.categoria = ? ORDER BY a.data_registo DESC";
 
-    private static final String POR_DATAS   =
-        "SELECT * FROM armazem WHERE data_compra BETWEEN ? AND ? ORDER BY data_compra DESC";
-    private static final String POR_PRODUTO =
-        "SELECT * FROM armazem WHERE id_produto = ? ORDER BY data_registo DESC";
+    private static final String POR_DATAS = "SELECT * FROM armazem WHERE data_compra BETWEEN ? AND ? ORDER BY data_compra DESC";
+    private static final String POR_PRODUTO = "SELECT * FROM armazem WHERE id_produto = ? ORDER BY data_registo DESC";
+
 
     private boolean produtoExiste(Connection conn, int idProduto) throws SQLException {
         String sql = "SELECT 1 FROM produto WHERE id_produto = ?";
@@ -33,26 +40,21 @@ public class ArmazemDAO {
     }
 
     private void validar(Armazem a, Connection conn) throws SQLException {
-        if (a == null)
-            throw new RuntimeException("Objecto Armazem está nulo!");
-        if (a.getPrecoProduto() == null || a.getPrecoProduto() <= 0)
-            throw new RuntimeException("Preço do produto inválido!");
-        if (a.getQuantidadeProduto() == null || a.getQuantidadeProduto() <= 0)
-            throw new RuntimeException("Quantidade inválida!");
-        if (a.getIdProduto() == null || a.getIdProduto() <= 0)
-            throw new RuntimeException("Seleccione um produto válido!");
-        if (!produtoExiste(conn, a.getIdProduto()))
-            throw new RuntimeException("Produto não existe na base de dados!");
+        if (a == null) throw new RuntimeException("Objecto Armazem está nulo!");
+        if (a.getPrecoProduto() == null || a.getPrecoProduto() <= 0) throw new RuntimeException("Preço do produto inválido!");
+        if (a.getQuantidadeProduto() == null || a.getQuantidadeProduto() <= 0) throw new RuntimeException("Quantidade inválida!");
+        if (a.getIdProduto() == null || a.getIdProduto() <= 0) throw new RuntimeException("Seleccione um produto válido!");
+        if (!produtoExiste(conn, a.getIdProduto())) throw new RuntimeException("Produto não existe na base de dados!");
     }
+
+    // --- Métodos CRUD ---
 
     public boolean save(Armazem a) {
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(INSERT)) {
-
             validar(a, conn);
             preencherCampos(ps, a, false);
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao salvar", e);
             throw new RuntimeException("Erro ao salvar: " + e.getMessage());
@@ -62,14 +64,10 @@ public class ArmazemDAO {
     public boolean update(Armazem a) {
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(UPDATE)) {
-
             validar(a, conn);
-            if (a.getIdArmazem() == null || a.getIdArmazem() <= 0)
-                throw new RuntimeException("ID do armazém inválido!");
-
+            if (a.getIdArmazem() == null || a.getIdArmazem() <= 0) throw new RuntimeException("ID do armazém inválido!");
             preencherCampos(ps, a, true);
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao actualizar", e);
             throw new RuntimeException("Erro ao actualizar: " + e.getMessage());
@@ -79,30 +77,37 @@ public class ArmazemDAO {
     public boolean delete(int id) {
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(DELETE)) {
-
-            if (id <= 0)
-                throw new RuntimeException("ID inválido para eliminação!");
-
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao eliminar", e);
             throw new RuntimeException("Erro ao eliminar: " + e.getMessage());
         }
     }
 
+
     public List<Armazem> listarTudo() {
         List<Armazem> lista = new ArrayList<>();
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(LISTAR);
              ResultSet rs = ps.executeQuery()) {
-
             while (rs.next()) lista.add(map(rs));
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao listar", e);
-            throw new RuntimeException("Erro ao listar: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    public List<Armazem> listarPorCategoria(String categoria) {
+        List<Armazem> lista = new ArrayList<>();
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(PESQUISAR_POR_CATEGORIA)) {
+            ps.setString(1, categoria);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) lista.add(map(rs));
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao listar por categoria", e);
         }
         return lista;
     }
@@ -111,38 +116,31 @@ public class ArmazemDAO {
         List<Armazem> lista = new ArrayList<>();
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(POR_DATAS)) {
-
-            ps.setDate(1, new Date(dataInicio.getTime()));
-            ps.setDate(2, new Date(dataFim.getTime()));
-
+            ps.setDate(1, new java.sql.Date(dataInicio.getTime()));
+            ps.setDate(2, new java.sql.Date(dataFim.getTime()));
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) lista.add(map(rs));
             }
-
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro ao pesquisar por datas", e);
-            throw new RuntimeException("Erro ao pesquisar por datas: " + e.getMessage());
         }
         return lista;
     }
 
-    public List<Armazem> pesquisarPorProduto(int idProduto) {
+    public List<Armazem> pesquisarPorProduto(Integer idProdutoFiltro) {
         List<Armazem> lista = new ArrayList<>();
         try (Connection conn = ConnectionDB.getConnection();
              PreparedStatement ps = conn.prepareStatement(POR_PRODUTO)) {
-
-            ps.setInt(1, idProduto);
-
+            ps.setInt(1, idProdutoFiltro);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) lista.add(map(rs));
             }
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao pesquisar por produto", e);
-            throw new RuntimeException("Erro ao pesquisar por produto: " + e.getMessage());
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao pesquisar por produto: " + idProdutoFiltro, e);
         }
         return lista;
     }
+
 
     private void preencherCampos(PreparedStatement ps, Armazem a, boolean isUpdate) throws SQLException {
         if (a.getDataRegisto() != null)
@@ -153,7 +151,7 @@ public class ArmazemDAO {
         ps.setDouble(2, a.getPrecoProduto());
 
         if (a.getDataCompra() != null)
-            ps.setDate(3, new Date(a.getDataCompra().getTime()));
+            ps.setDate(3, new java.sql.Date(a.getDataCompra().getTime()));
         else
             ps.setNull(3, Types.DATE);
 

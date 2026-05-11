@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
+
+
+            <ui:define name="content">
+                <h:form id="frmProduto">
+                    <p:growl id="msgs" showDetail="true" life="4000"/>
+
+                    <p:panel header="Cadastro de Novo Produto" style="max-width:600px; margin-bottom:20px;">
+                        <h:panelGrid columns="2" cellpadding="7" style="width:100%;">
+
+                            <h:outputLabel value="Descrição do Produto:" for="desc" />
+                            <p:inputText id="desc" value="#{produtoBean.produto.descricaoProduto}" 
+                                         required="true" requiredMessage="A descrição é obrigatória"
+                                         style="width:100%" />
+
+                            <h:outputLabel value="Categoria:" for="categoria"/>
+                            <p:selectOneMenu id="categoria"
+                                             value="#{produtoBean.produto.categoria}"
+                                             required="true"
+                                             requiredMessage="Seleccione a categoria"
+                                             style="width:100%;">
+                                <f:selectItem itemLabel="-- Seleccione --"            itemValue=""/>
+                                <f:selectItem itemLabel="Águas"                       itemValue="Águas"/>
+                                <f:selectItem itemLabel="Bebidas"                     itemValue="Bebidas"/>
+                                <f:selectItem itemLabel="Bolachas e biscoitos"        itemValue="Bolachas e biscoitos"/>
+                                <f:selectItem itemLabel="Bolos"                       itemValue="Bolos"/>
+                                <f:selectItem itemLabel="Bolinhos Secos"              itemValue="Bolinhos Secos"/>
+                                <f:selectItem itemLabel="Cachorro Quente"             itemValue="Cachorro Quente"/>
+                                <f:selectItem itemLabel="Confeitaria"                 itemValue="Confeitaria"/>
+                                <f:selectItem itemLabel="Doces"                       itemValue="Doces"/>
+                                <f:selectItem itemLabel="Gelados"                     itemValue="Gelados"/>
+                                <f:selectItem itemLabel="Gingubas"                    itemValue="Gingubas"/>
+                                <f:selectItem itemLabel="Ovos Fervidos"               itemValue="Ovos Fervidos"/>
+                                <f:selectItem itemLabel="Padaria"                     itemValue="Padaria"/>
+                                <f:selectItem itemLabel="Pipocas"                     itemValue="Pipocas"/>
+                                <f:selectItem itemLabel="Salgados"                    itemValue="Salgados"/>
+                                <f:selectItem itemLabel="Sumos e refrigerantes"       itemValue="Sumos e refrigerantes"/>
+                                <f:selectItem itemLabel="Outros"                      itemValue="Outros"/>
+                            </p:selectOneMenu>
+
+                        </h:panelGrid>
+
+                        <p:separator />
+
+                        <div style="text-align: center; margin-top: 10px;">
+                            <p:commandButton value="Guardar Produto" action="#{produtoBean.salvar}" 
+                                             update="frmProduto tabelaProdutos" icon="pi pi-save" 
+                                             styleClass="ui-button-success" style="margin-right: 10px;" />
+
+                            <p:commandButton value="Limpar" action="#{produtoBean.novo}" 
+                                             update="frmProduto" icon="pi pi-refresh" 
+                                             process="@this" styleClass="ui-button-secondary" />
+                        </div>
+                    </p:panel>
+                  <h:link outcome="listar_produtos" value="Produtos"/>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+
+    </body>
+</html>

@@ -1,0 +1,116 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
+
+            <ui:define name="top">
+                Gestão de Produtos
+            </ui:define>
+
+            <ui:define name="content">
+                <h:form id="frmProduto">
+
+                    <p:growl id="msgs" showDetail="true" />
+
+                    <p:panel header="Pesquisa por Categoria">
+                        <h:panelGrid columns="3" cellpadding="10">
+                            <h:outputLabel value="Categoria:" for="categoria"/>
+
+                            <p:selectOneMenu id="categoria"
+                                             value="#{produtoBean.categoriaFiltro}">
+                                <f:selectItem itemLabel="-- Seleccione --" itemValue=""/>
+                                <f:selectItem itemLabel="Águas" itemValue="Águas"/>
+                                <f:selectItem itemLabel="Bebidas" itemValue="Bebidas"/>
+                                <f:selectItem itemLabel="Bolachas e biscoitos" itemValue="Bolachas e biscoitos"/>
+                                <f:selectItem itemLabel="Ovos Fervidos" itemValue="Ovos Fervidos"/>
+                                <f:selectItem itemLabel="Padaria" itemValue="Padaria"/>
+                                <f:selectItem itemLabel="Pipocas" itemValue="Pipocas"/>
+                                <f:selectItem itemLabel="Salgados" itemValue="Salgados"/>
+                                <f:selectItem itemLabel="Sumos e refrigerantes" itemValue="Sumos e refrigerantes"/>
+                                <f:selectItem itemLabel="Outros" itemValue="Outros"/>
+                            </p:selectOneMenu>
+
+                            <h:panelGroup>
+                                <p:commandButton value="Pesquisar" 
+                                                 action="#{produtoBean.pesquisarPorCategoria}" 
+                                                 update="tabelaProdutos msgs" 
+                                                 icon="pi pi-search" 
+                                                 styleClass="ui-button-info" 
+                                                 style="margin-right: 10px"/>
+
+                                <p:commandButton value="Ver Todos" 
+                                                 action="#{produtoBean.listar}" 
+                                                 update="tabelaProdutos categoria" 
+                                                 icon="pi pi-list" 
+                                                 styleClass="ui-button-secondary" 
+                                                 style="margin-right: 10px"/>
+
+                                <p:commandButton value="Limpar"
+                                                 action="#{produtoBean.limpar}"
+                                                 update="categoria tabelaProdutos msgs" 
+                                                 icon="pi pi-times"
+                                                 process="@this"
+                                                 immediate="true"
+                                                 styleClass="ui-button-secondary" />
+                            </h:panelGroup>
+                        </h:panelGrid>
+                    </p:panel>
+
+                    <p:spacer height="20" />
+
+                    <p:dataTable id="tabelaProdutos" 
+                                 value="#{produtoBean.listaProdutos}" 
+                                 var="p" 
+                                 paginator="true" 
+                                 rows="10" 
+                                 emptyMessage="Nenhum produto encontrado."
+                                 stripedRows="true">
+
+                        <p:column headerText="Código" width="10%">
+                            <h:outputText value="#{p.idProduto}" />
+                        </p:column>
+
+                        <p:column headerText="Descrição do Produto">
+                            <h:outputText value="#{p.descricaoProduto}" />
+                        </p:column>
+
+                        <p:column headerText="Categoria" sortBy="#{p.categoria}">
+                            <h:outputText value="#{p.categoria}" />
+                        </p:column>
+
+                        <p:column headerText="Ações" width="150" style="text-align:center">
+                            <p:commandButton icon="pi pi-pencil" 
+                                             action="#{produtoBean.setProduto(p)}" 
+                                             update=":frmProduto" 
+                                             process="@this"
+                                             styleClass="ui-button-warning ui-button-flat" />
+
+                            <p:commandButton icon="pi pi-trash" 
+                                             action="#{produtoBean.eliminar}" 
+                                             update="tabelaProdutos :frmProduto:msgs" 
+                                             styleClass="ui-button-danger ui-button-flat">
+                                <f:setPropertyActionListener value="#{p}" target="#{produtoBean.produto}" />
+                                <p:confirm header="Confirmação" message="Deseja eliminar este produto?" icon="pi pi-exclamation-triangle" />
+                            </p:commandButton>
+                        </p:column>
+                    </p:dataTable>
+
+                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
+                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
+                        <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
+                    </p:confirmDialog>
+
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

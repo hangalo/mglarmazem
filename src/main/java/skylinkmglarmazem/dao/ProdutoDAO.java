@@ -9,78 +9,113 @@ import java.util.List;
 import skylink.mglarmazem.bdutil.ConnectionDB;
 import skylink.mglarmazem.modelo.Produto;
 
-/**
- *
- * @Henriques
- */
-
 public class ProdutoDAO {
 
-    private static final String INSERT = "INSERT INTO produto(descricao_produto) VALUES (?)";
-    private static final String UPDATE = "UPDATE produto SET descricao_produto = ? WHERE id_produto = ?";
+    private static final String INSERT = "INSERT INTO produto(descricao_produto, categoria) VALUES (?, ?)";
+    private static final String UPDATE = "UPDATE produto SET descricao_produto = ?, categoria = ? WHERE id_produto = ?";
     private static final String DELETE = "DELETE FROM produto WHERE id_produto = ?";
-    private static final String BUSCAR_POR_CODIGO = "SELECT id_produto, descricao_produto FROM produto WHERE id_produto = ?";
-    private static final String LISTAR_TUDO = "SELECT id_produto, descricao_produto FROM produto";
+    private static final String BUSCAR_POR_CODIGO = "SELECT id_produto, descricao_produto, categoria FROM produto WHERE id_produto = ?";
+    private static final String LISTAR_TUDO = "SELECT id_produto, descricao_produto, categoria FROM produto ORDER BY descricao_produto";
 
     public boolean save(Produto produto) {
         Connection conn = null;
         PreparedStatement ps = null;
-        boolean flagControlo = false;
         try {
             conn = ConnectionDB.getConnection();
             ps = conn.prepareStatement(INSERT);
             ps.setString(1, produto.getDescricaoProduto());
-            int retorno = ps.executeUpdate();
-            if (retorno > 0) {
-                flagControlo = true;
-            }
+            ps.setString(2, produto.getCategoria());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Erro ao inserir dados: " + e.getMessage());
+            System.out.println("Erro ao inserir: " + e.getMessage());
+            return false;
         } finally {
             ConnectionDB.closeConnection(conn, ps);
         }
-        return flagControlo;
     }
 
     public boolean update(Produto produto) {
         Connection conn = null;
         PreparedStatement ps = null;
-        boolean flagControlo = false;
         try {
             conn = ConnectionDB.getConnection();
             ps = conn.prepareStatement(UPDATE);
             ps.setString(1, produto.getDescricaoProduto());
-            ps.setInt(2, produto.getIdProduto());
-            int retorno = ps.executeUpdate();
-            if (retorno > 0) {
-                flagControlo = true;
-            }
+            ps.setString(2, produto.getCategoria());
+            ps.setInt(3, produto.getIdProduto());
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Erro ao actualizar dados: " + e.getMessage());
+            System.out.println("Erro ao actualizar: " + e.getMessage());
+            return false;
         } finally {
             ConnectionDB.closeConnection(conn, ps);
         }
-        return flagControlo;
     }
 
     public boolean delete(int idProduto) {
         Connection conn = null;
         PreparedStatement ps = null;
-        boolean flagControlo = false;
         try {
             conn = ConnectionDB.getConnection();
             ps = conn.prepareStatement(DELETE);
             ps.setInt(1, idProduto);
-            int retorno = ps.executeUpdate();
-            if (retorno > 0) {
-                flagControlo = true;
-            }
+            return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.out.println("Erro ao eliminar dados: " + e.getMessage());
+            System.out.println("Erro ao eliminar: " + e.getMessage());
+            return false;
         } finally {
             ConnectionDB.closeConnection(conn, ps);
         }
-        return flagControlo;
+    }
+
+    public List<Produto> listarTudo() {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Produto> lista = new ArrayList<Produto>();
+        try {
+            conn = ConnectionDB.getConnection();
+            ps = conn.prepareStatement(LISTAR_TUDO);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Produto p = new Produto();
+                p.setIdProduto(rs.getInt("id_produto"));
+                p.setDescricaoProduto(rs.getString("descricao_produto"));
+                p.setCategoria(rs.getString("categoria"));
+                lista.add(p);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao listar: " + e.getMessage());
+        } finally {
+            ConnectionDB.closeConnection(conn, ps, rs);
+        }
+        return lista;
+    }
+
+    public List<Produto> listarPorCategoria(String categoriaFiltro) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Produto> lista = new ArrayList<Produto>();
+        String sql = "SELECT id_produto, descricao_produto, categoria FROM produto WHERE categoria = ? ORDER BY descricao_produto";
+        try {
+            conn = ConnectionDB.getConnection();
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, categoriaFiltro);
+            rs = ps.executeQuery();
+            while (rs.next()) {
+                Produto p = new Produto();
+                p.setIdProduto(rs.getInt("id_produto"));
+                p.setDescricaoProduto(rs.getString("descricao_produto"));
+                p.setCategoria(rs.getString("categoria"));
+                lista.add(p);
+            }
+        } catch (SQLException e) {
+            System.out.println("Erro ao filtrar: " + e.getMessage());
+        } finally {
+            ConnectionDB.closeConnection(conn, ps, rs);
+        }
+        return lista;
     }
 
     public Produto buscarPorCodigo(int idProduto) {
@@ -97,35 +132,13 @@ public class ProdutoDAO {
                 produto = new Produto();
                 produto.setIdProduto(rs.getInt("id_produto"));
                 produto.setDescricaoProduto(rs.getString("descricao_produto"));
+                produto.setCategoria(rs.getString("categoria"));
             }
         } catch (SQLException e) {
-            System.out.println("Erro ao buscar produto: " + e.getMessage());
+            System.out.println("Erro ao buscar: " + e.getMessage());
         } finally {
             ConnectionDB.closeConnection(conn, ps, rs);
         }
         return produto;
-    }
-
-    public List<Produto> listarTudo() {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        List<Produto> lista = new ArrayList<>();
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(LISTAR_TUDO);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                Produto produto = new Produto();
-                produto.setIdProduto(rs.getInt("id_produto"));
-                produto.setDescricaoProduto(rs.getString("descricao_produto"));
-                lista.add(produto);
-            }
-        } catch (SQLException e) {
-            System.out.println("Erro ao listar produtos: " + e.getMessage());
-        } finally {
-            ConnectionDB.closeConnection(conn, ps, rs);
-        }
-        return lista;
     }
 }

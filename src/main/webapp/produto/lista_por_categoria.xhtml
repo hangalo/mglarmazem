@@ -24,17 +24,12 @@
                             <h:outputLabel value="Categoria:" for="categoria"/>
 
                             <p:selectOneMenu id="categoria"
-                                             value="#{produtoBean.categoriaFiltro}">
-                                <f:selectItem itemLabel="-- Seleccione --" itemValue=""/>
-                                <f:selectItem itemLabel="Águas" itemValue="Águas"/>
-                                <f:selectItem itemLabel="Bebidas" itemValue="Bebidas"/>
-                                <f:selectItem itemLabel="Bolachas e biscoitos" itemValue="Bolachas e biscoitos"/>
-                                <f:selectItem itemLabel="Ovos Fervidos" itemValue="Ovos Fervidos"/>
-                                <f:selectItem itemLabel="Padaria" itemValue="Padaria"/>
-                                <f:selectItem itemLabel="Pipocas" itemValue="Pipocas"/>
-                                <f:selectItem itemLabel="Salgados" itemValue="Salgados"/>
-                                <f:selectItem itemLabel="Sumos e refrigerantes" itemValue="Sumos e refrigerantes"/>
-                                <f:selectItem itemLabel="Outros" itemValue="Outros"/>
+                                             value="#{produtoBean.filtroIdCategoria}">
+                                <f:selectItem itemLabel="Selecione a Ctegoria" itemValue=""/>
+                                <f:selectItems value="#" 
+                                               var="cat" 
+                                               itemLabel="#{cat.descricaoCategoria}" 
+                                               itemValue="#{cat.idCategoria}" />
                             </p:selectOneMenu>
 
                             <h:panelGroup>
@@ -53,7 +48,7 @@
                                                  style="margin-right: 10px"/>
 
                                 <p:commandButton value="Limpar"
-                                                 action="#{produtoBean.limpar}"
+                                                 action="#{produtoBean.novo}"
                                                  update="categoria tabelaProdutos msgs" 
                                                  icon="pi pi-times"
                                                  process="@this"
@@ -81,31 +76,17 @@
                             <h:outputText value="#{p.descricaoProduto}" />
                         </p:column>
 
-                        <p:column headerText="Categoria" sortBy="#{p.categoria}">
-                            <h:outputText value="#{p.categoria}" />
+                        <p:column headerText="ID Categoria" width="15%">
+                            <h:outputText value="#{p.idCategoria}" />
                         </p:column>
 
-                        <p:column headerText="Ações" width="150" style="text-align:center">
-                            <p:commandButton icon="pi pi-pencil" 
-                                             action="#{produtoBean.setProduto(p)}" 
-                                             update=":frmProduto" 
-                                             process="@this"
-                                             styleClass="ui-button-warning ui-button-flat" />
-
-                            <p:commandButton icon="pi pi-trash" 
-                                             action="#{produtoBean.eliminar}" 
-                                             update="tabelaProdutos :frmProduto:msgs" 
-                                             styleClass="ui-button-danger ui-button-flat">
-                                <f:setPropertyActionListener value="#{p}" target="#{produtoBean.produto}" />
-                                <p:confirm header="Confirmação" message="Deseja eliminar este produto?" icon="pi pi-exclamation-triangle" />
-                            </p:commandButton>
+                        <p:column headerText="Estoque Atual" width="15%" style="text-align: center">
+                            <h:outputText value="#{p.quantidadeExistente}" 
+                                          styleClass="#{p.quantidadeExistente le 5 ? 'text-danger font-bold' : ''}" />
                         </p:column>
+
+
                     </p:dataTable>
-
-                    <p:confirmDialog global="true" showEffect="fade" hideEffect="fade" responsive="true" width="350">
-                        <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat"/>
-                        <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
-                    </p:confirmDialog>
 
                 </h:form>
             </ui:define>

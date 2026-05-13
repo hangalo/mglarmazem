@@ -4,18 +4,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- *
  * @author Henriques
  */
 public class Produto implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private Integer idProduto;
     private String descricaoProduto;
-    private String categoria; 
-    
-    public Produto(){
+    private Integer idCategoria;
+    private Integer quantidadeExistente;
+
+    public Produto() {
     }
 
     public Integer getIdProduto() {
@@ -34,12 +34,20 @@ public class Produto implements Serializable {
         this.descricaoProduto = descricaoProduto;
     }
 
-    public String getCategoria() {
-        return categoria;
+    public Integer getIdCategoria() {
+        return idCategoria;
     }
 
-    public void setCategoria(String categoria) {
-        this.categoria = categoria;
+    public void setIdCategoria(Integer idCategoria) {
+        this.idCategoria = idCategoria;
+    }
+
+    public Integer getQuantidadeExistente() {
+        return quantidadeExistente;
+    }
+
+    public void setQuantidadeExistente(Integer quantidadeExistente) {
+        this.quantidadeExistente = quantidadeExistente;
     }
 
     @Override
@@ -54,16 +62,22 @@ public class Produto implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
         final Produto other = (Produto) obj;
-        
+
         return Objects.equals(this.idProduto, other.idProduto);
     }
 
+    
+    
     @Override
     public String toString() {
-        return descricaoProduto; 
+        return String.format("%s[idProduto=%d]", getClass().getSimpleName(), getIdProduto());
     }
+
 }

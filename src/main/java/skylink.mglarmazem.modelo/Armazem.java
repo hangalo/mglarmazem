@@ -3,6 +3,9 @@ package skylink.mglarmazem.modelo;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * @author Henriques
+ */
 public class Armazem {
 
     private Integer idArmazem;
@@ -11,11 +14,13 @@ public class Armazem {
     private Date dataCompra;
     private Integer quantidadeProduto;
     private Integer idProduto;
+    
+    private String descricaoProduto;
 
     public Armazem() {
     }
 
-    public Armazem(Integer idArmazem, Date dataResgisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Integer idProduto) {
+    public Armazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Integer idProduto) {
         this.idArmazem = idArmazem;
         this.dataRegisto = dataRegisto;
         this.precoProduto = precoProduto;
@@ -23,6 +28,7 @@ public class Armazem {
         this.quantidadeProduto = quantidadeProduto;
         this.idProduto = idProduto;
     }
+
 
     public Integer getIdArmazem() {
         return idArmazem;
@@ -72,6 +78,14 @@ public class Armazem {
         this.idProduto = idProduto;
     }
 
+    public String getDescricaoProduto() {
+        return descricaoProduto;
+    }
+
+    public void setDescricaoProduto(String descricaoProduto) {
+        this.descricaoProduto = descricaoProduto;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -81,6 +95,7 @@ public class Armazem {
         hash = 79 * hash + Objects.hashCode(this.dataCompra);
         hash = 79 * hash + Objects.hashCode(this.quantidadeProduto);
         hash = 79 * hash + Objects.hashCode(this.idProduto);
+        hash = 79 * hash + Objects.hashCode(this.descricaoProduto);
         return hash;
     }
 
@@ -89,37 +104,21 @@ public class Armazem {
         if (this == obj) {
             return true;
         }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
         final Armazem other = (Armazem) obj;
-        if (!Objects.equals(this.idArmazem, other.idArmazem)) {
-            return false;
-        }
-        if (!Objects.equals(this.dataRegisto, other.dataRegisto)) {
-            return false;
-        }
-        if (!Objects.equals(this.precoProduto, other.precoProduto)) {
-            return false;
-        }
-        if (!Objects.equals(this.dataCompra, other.dataCompra)) {
-            return false;
-        }
-        if (!Objects.equals(this.quantidadeProduto, other.quantidadeProduto)) {
-            return false;
-        }
-        return Objects.equals(this.idProduto, other.idProduto);
+        return Objects.equals(this.idArmazem, other.idArmazem) &&
+               Objects.equals(this.dataRegisto, other.dataRegisto) &&
+               Objects.equals(this.precoProduto, other.precoProduto) &&
+               Objects.equals(this.dataCompra, other.dataCompra) &&
+               Objects.equals(this.quantidadeProduto, other.quantidadeProduto) &&
+               Objects.equals(this.idProduto, other.idProduto) &&
+               Objects.equals(this.descricaoProduto, other.descricaoProduto);
     }
-
-    
 
     @Override
     public String toString() {
-        return "Armazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", idProduto=" + idProduto + '}';
+        return "Armazem{" + "idArmazem=" + idArmazem + ", descricaoProduto=" + descricaoProduto + '}';
     }
-
-    
 }

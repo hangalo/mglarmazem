@@ -18,21 +18,21 @@
 
                             <h:outputLabel value="Data Início:" for="dtInicio"/>
                             <p:datePicker id="dtInicio"
-                                          value="#{armazem.dataInicio}"
+                                          value="#{armazemBean.dataInicio}"
                                           pattern="dd/MM/yyyy"
                                           showIcon="true"
                                           required="true"
                                           requiredMessage="Seleccione a data início"
-                                          maxdate="#{armazem.hoje}"/>
+                                          maxdate="#{armazemBean.hoje}"/>
 
                             <h:outputLabel value="Data Fim:" for="dtFim"/>
                             <p:datePicker id="dtFim"
-                                          value="#{armazem.dataFim}"
+                                          value="#{armazemBean.dataFim}"
                                           pattern="dd/MM/yyyy"
                                           showIcon="true"
                                           required="true"
                                           requiredMessage="Seleccione a data fim"
-                                          maxdate="#{armazem.hoje}"/>
+                                          maxdate="#{armazemBean.hoje}"/>
 
                         </h:panelGrid>
 
@@ -40,13 +40,13 @@
 
                         <div style="margin-top:10px; display:flex; gap:10px;">
                             <p:commandButton value="Pesquisar"
-                                             action="#{armazem.pesquisarPorDatas}"
+                                             action="#{armazemBean.pesquisarPorDatas}"
                                              update="frmDatas msgs"
                                              icon="pi pi-search"
                                              styleClass="ui-button-info"/>
 
                             <p:commandButton value="Limpar"
-                                             action="#{armazem.limparFiltros}"
+                                             action="#{armazemBean.limparFiltros}"
                                              update="frmDatas msgs"
                                              icon="pi pi-times"
                                              styleClass="ui-button-secondary"
@@ -61,61 +61,55 @@
                             <p:toolbarGroup align="left">
                                 <h:outputText value="Total de registos: "
                                               style="font-weight:bold; margin-right:5px;"/>
-                                <h:outputText value="#{armazem.listaArmazens.size()}"/>
+                                <h:outputText value="#{armazemBean.listaArmazens.size()}"/>
                             </p:toolbarGroup>
                             <p:toolbarGroup align="right">
                                 <h:outputText value="Valor total: "
                                               style="font-weight:bold; margin-right:5px;"/>
-                                <h:outputText value="#{armazem.totalPreco}">
+                                <h:outputText value="#{armazemBean.totalPreco}">
                                     <f:convertNumber pattern="#,##0.00"
                                                      currencySymbol="Kz "
                                                      type="currency"/>
                                 </h:outputText>
                             </p:toolbarGroup>
                         </p:toolbar>
-
                         <p:dataTable id="tblDatas"
-                                     value="#{armazem.listaArmazens}"
+                                     value="#{armazemBean.listaArmazens}"
                                      var="a"
                                      paginator="true"
                                      rows="10"
-                                     paginatorTemplate="{FirstPageLink} {PreviousPageLink}
-                                     {PageLinks} {NextPageLink} {LastPageLink}
-                                     {RowsPerPageDropdown}"
+                                     paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                                      rowsPerPageTemplate="5,10,20,50"
                                      emptyMessage="Nenhum registo encontrado no período."
                                      styleClass="ui-datatable-striped"
                                      sortMode="multiple"
                                      style="width:100%;">
 
-                            <p:column headerText="#"
-                                      style="width:50px; text-align:center;">
-                                <h:outputText value="#{armazem.listaArmazens.indexOf(a) + 1}"/>
+                            <p:column headerText="Cód." style="width:50px; text-align:center;">
+                                <h:outputText value="#{a.idProduto}"/>
                             </p:column>
 
-                            <p:column headerText="Codigo do Produto" sortBy="#{a.idProduto}"
-                                      style="text-align:center;">
-                                <h:outputText value="#{a.idProduto}"/>
+                            <p:column headerText="Descrição do Produto" sortBy="#{a.descricaoProduto}">
+                                <h:outputText value="#{a.descricaoProduto}"/>
                             </p:column>
 
                             <p:column headerText="Preço (Kz)" sortBy="#{a.precoProduto}">
                                 <h:outputText value="#{a.precoProduto}">
-                                    <f:convertNumber pattern="#,##0.00"
-                                                     currencySymbol="Kz "        type="currency"/></h:outputText>
+                                    <f:convertNumber pattern="#,##0.00" currencySymbol="Kz " type="currency"/>
+                                </h:outputText>
                             </p:column>
 
-                            <p:column headerText="Quantidade" sortBy="#{a.quantidadeProduto}"
-                                      style="text-align:center;">
+                            <p:column headerText="Qtd" sortBy="#{a.quantidadeProduto}" style="width:80px; text-align:center;">
                                 <h:outputText value="#{a.quantidadeProduto}"/>
                             </p:column>
 
-                            <p:column headerText="Data Compra" sortBy="#{a.dataCompra}">
+                            <p:column headerText="Data Compra" sortBy="#{a.dataCompra}" style="text-align:center;">
                                 <h:outputText value="#{a.dataCompra}">
                                     <f:convertDateTime pattern="dd/MM/yyyy"/>
                                 </h:outputText>
                             </p:column>
 
-                            <p:column headerText="Data Registo" sortBy="#{a.dataRegisto}">
+                            <p:column headerText="Data Registo" sortBy="#{a.dataRegisto}" style="text-align:center;">
                                 <h:outputText value="#{a.dataRegisto}">
                                     <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
                                 </h:outputText>
@@ -125,10 +119,6 @@
                     </p:panel>
 
                 </h:form>
-            </ui:define>
-
-            <ui:define name="bottom">
-                bottom
             </ui:define>
 
         </ui:composition>

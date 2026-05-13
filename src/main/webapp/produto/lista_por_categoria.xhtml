@@ -26,7 +26,7 @@
                             <p:selectOneMenu id="categoria"
                                              value="#{produtoBean.filtroIdCategoria}">
                                 <f:selectItem itemLabel="Selecione a Ctegoria" itemValue=""/>
-                                <f:selectItems value="#" 
+                                <f:selectItems value="#{categoriaBean.listaCategorias}" 
                                                var="cat" 
                                                itemLabel="#{cat.descricaoCategoria}" 
                                                itemValue="#{cat.idCategoria}" />

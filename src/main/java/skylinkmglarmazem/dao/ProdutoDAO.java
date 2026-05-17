@@ -7,17 +7,21 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import skylink.mglarmazem.bdutil.ConnectionDB;
-import skylink.mglarmazem.modelo.Produto;
+import skylink.armazem.modelo.CategoriaProduto;
+import skylink.armazem.modelo.Produto;
 
 public class ProdutoDAO {
 
-    private static final String INSERT = "INSERT INTO produto(descricao_produto, quantidade_existente, id_categoria) VALUES (?, ?, ?)";
+    private static final String INSERT = "INSERT INTO produto(descricao_produto, id_categoria) VALUES (?, ?)";
     private static final String UPDATE = "UPDATE produto SET descricao_produto = ?, quantidade_existente = ?, id_categoria = ? WHERE id_produto = ?";
     private static final String DELETE = "DELETE FROM produto WHERE id_produto = ?";
     private static final String BUSCAR_POR_CODIGO = "SELECT * FROM produto WHERE id_produto = ?";
-    private static final String LISTAR_TUDO = "SELECT * FROM produto ORDER BY descricao_produto";
-    private static final String LISTAR_POR_CATEGORIA = "SELECT * FROM produto WHERE id_categoria = ? ORDER BY descricao_produto";
+    private static final String LISTAR_TUDO = "SELECT id_produto, descricao_produto, quantidade_existente, c.id_categoria, descricao_categoria FROM produto p INNER JOIN categoria_produto c ON p.id_categoria=c.id_categoria";
+    private static final String LISTAR_POR_CATEGORIA = "SELECT id_produto, descricao_produto, quantidade_existente, descricao_categoria FROM produto p INNER JOIN categoria_produto c ON p.id_categoria=c.id_categoria WHERE id_categoria = ? ORDER BY descricao_produto";
 
+    private static final String ATUALIZAR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente + ? WHERE id_produto = ?";
+    private static final String DIMINUIR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente - ? WHERE id_produto = ?";
+    
     public boolean save(Produto produto) {
         Connection conn = null;
         PreparedStatement ps = null;
@@ -25,8 +29,7 @@ public class ProdutoDAO {
             conn = ConnectionDB.getConnection();
             ps = conn.prepareStatement(INSERT);
             ps.setString(1, produto.getDescricaoProduto());
-            ps.setInt(2, produto.getQuantidadeExistente());
-            ps.setInt(3, produto.getIdCategoria());
+            ps.setInt(2, produto.getCategoriaProduto().getIdCategoria());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.err.println("Erro ao inserir produto: " + e.getMessage());
@@ -44,7 +47,7 @@ public class ProdutoDAO {
             ps = conn.prepareStatement(UPDATE);
             ps.setString(1, produto.getDescricaoProduto());
             ps.setInt(2, produto.getQuantidadeExistente());
-            ps.setInt(3, produto.getIdCategoria());
+            ps.setInt(3, produto.getCategoriaProduto().getIdCategoria());
             ps.setInt(4, produto.getIdProduto());
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -111,6 +114,84 @@ public class ProdutoDAO {
         }
         return lista;
     }
+    
+    public boolean updateAumentarQuantidade( Integer quantidade,Integer idProduto) {
+        boolean bl;
+        PreparedStatement ps = null;
+        Connection conn = null;
+        boolean flagControlo = false;
+        try {
+            System.out.println("Quantidade 1>>>>>>>>>>" + quantidade);
+            conn = ConnectionDB.getConnection();
+            conn.setAutoCommit(false);
+            ps = conn.prepareStatement(ATUALIZAR_ESTOQUE_PRODUTO);
+            ps.setInt(1, quantidade);
+            ps.setInt(2, idProduto);
+            int retorno = ps.executeUpdate();
+            conn.commit();
+            if (retorno > 0) {
+                System.out.println("StockProdutoDAO:update AumentarQuantidade Dados quantidade aumentada com sucesso com sucesso: " + ps.getUpdateCount());
+                flagControlo = true;
+            }
+            bl = flagControlo;
+        }
+        catch (SQLException e) {
+            boolean bl2;
+            try {
+                System.out.println("Erro ao inserir dados: " + e.getMessage());
+                bl2 = false;
+            }
+            catch (Throwable throwable) {
+                ConnectionDB.closeConnection(conn, ps);
+                throw throwable;
+            }
+            ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
+            return bl2;
+        }
+        ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
+        return bl;
+    }
+    
+    public boolean updateDiminuirQuantidade(Integer quantidade, Integer idProduto) {
+    boolean bl;
+    PreparedStatement ps = null;
+    Connection conn = null;
+    boolean flagControlo = false;
+    try {
+        System.out.println("Quantidade a diminuir >>>>>>>>>>" + quantidade);
+        conn = ConnectionDB.getConnection();
+        conn.setAutoCommit(false);
+        
+       
+        ps = conn.prepareStatement(DIMINUIR_ESTOQUE_PRODUTO); 
+        
+        ps.setInt(1, quantidade);
+        ps.setInt(2, idProduto);
+        int retorno = ps.executeUpdate();
+        conn.commit();
+        
+        if (retorno > 0) {
+            System.out.println("StockProdutoDAO:updateDiminuirQuantidade Dados quantidade diminuída com sucesso: " + ps.getUpdateCount());
+            flagControlo = true;
+        }
+        bl = flagControlo;
+    }
+    catch (SQLException e) {
+        boolean bl2;
+        try {
+            System.out.println("Erro ao diminuir dados no estoque: " + e.getMessage());
+            bl2 = false;
+        }
+        catch (Throwable throwable) {
+            ConnectionDB.closeConnection(conn, ps);
+            throw throwable;
+        }
+        ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
+        return bl2;
+    }
+    ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
+    return bl;
+}
 
     public Produto buscarPorCodigo(int idProduto) {
         Connection conn = null;
@@ -138,7 +219,11 @@ public class ProdutoDAO {
         p.setIdProduto(rs.getInt("id_produto"));
         p.setDescricaoProduto(rs.getString("descricao_produto"));
         p.setQuantidadeExistente(rs.getInt("quantidade_existente"));
-        p.setIdCategoria(rs.getInt("id_categoria"));
+       
+        CategoriaProduto categoriaProduto=new CategoriaProduto();
+        categoriaProduto.setDescricaoCategoria(rs.getString("descricao_categoria"));
+        categoriaProduto.setIdCategoria(rs.getInt("id_categoria"));
+        p.setCategoriaProduto(categoriaProduto);
         return p;
     }
 

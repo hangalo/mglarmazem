@@ -7,7 +7,7 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
-import skylink.mglarmazem.modelo.Produto;
+import skylink.armazem.modelo.Produto;
 import skylinkmglarmazem.dao.ProdutoDAO;
 
 /**
@@ -29,6 +29,7 @@ public class ProdutoBean implements Serializable {
     public void init() {
         novo();
         listar();
+       
     }
 
    
@@ -87,6 +88,11 @@ public class ProdutoBean implements Serializable {
             adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao eliminar produto.");
         }
     }
+    
+    public void limparParaPesquisa() {
+    this.listaProdutos = null; 
+    this.filtroIdCategoria = null; 
+}
 
     
     private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
@@ -117,4 +123,10 @@ public class ProdutoBean implements Serializable {
     public void setFiltroIdCategoria(Integer filtroIdCategoria) {
         this.filtroIdCategoria = filtroIdCategoria;
     }
+
+    @Override
+    public String toString() {
+        return "ProdutoBean{" + "produto=" + produto + ", listaProdutos=" + listaProdutos + ", filtroIdCategoria=" + filtroIdCategoria + ", dao=" + dao + '}';
+    }
+    
 }

@@ -5,7 +5,7 @@ import jakarta.faces.view.ViewScoped; // Melhor para manter os dados na tela
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.List;
-import skylink.mglarmazem.modelo.Sector;
+import skylink.armazem.modelo.Sector;
 import skylinkmglarmazem.dao.SectorDAO;
 
 /**

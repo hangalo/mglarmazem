@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import skylink.mglarmazem.bdutil.ConnectionDB;
-import skylink.mglarmazem.modelo.CategoriaProduto;
+import skylink.armazem.modelo.CategoriaProduto;
 
 /**
  * @author Henriques

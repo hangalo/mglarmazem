@@ -7,7 +7,8 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.Date;
-import skylink.mglarmazem.modelo.SaidaArmazem;
+import skylink.armazem.modelo.SaidaArmazem;
+import skylinkmglarmazem.dao.ProdutoDAO;
 import skylinkmglarmazem.dao.SaidaArmazemDAO;
 
 /** 
@@ -20,6 +21,7 @@ public class SaidaArmazemBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private SaidaArmazem saida;
+     private final ProdutoDAO produtoDAO = new ProdutoDAO();
     private final SaidaArmazemDAO dao = new SaidaArmazemDAO();
 
     @PostConstruct
@@ -34,35 +36,17 @@ public class SaidaArmazemBean implements Serializable {
     }
 
     
-    public void registrar() {
-        try {
-            
-            if (saida.getIdProduto() <= 0 || saida.getIdSector() <= 0) {
-                adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso", "Selecione um produto e um sector válido.");
-                return;
-            }
-
-            if (saida.getQuantidadeSaidaArmazem() <= 0) {
-                adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso", "A quantidade deve ser maior que zero.");
-                return;
-            }
-
-            
-            boolean sucesso = dao.registrarSaida(saida);
-
-            if (sucesso) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Saída registada e stock atualizado!");
-                limpar(); 
-            } else {
-                adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível processar a operação. Verifique os dados.");
-            }
-
-        } catch (Exception e) {
-            
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro ao processar", e.getMessage());
-        }
+public String registrar() {
+    if (dao.registrarSaida(saida)) {
+        produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
+        saida = new SaidaArmazem();        
+        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
+        return "saida_armazem?faces-redirect=true";       
+    } else {
+        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
+        return null;
     }
-
+}
    
     private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));

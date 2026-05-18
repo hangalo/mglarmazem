@@ -1,4 +1,4 @@
-package skylink.mglarmazem.modelo;
+package skylink.armazem.modelo;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -12,7 +12,7 @@ public class Produto implements Serializable {
 
     private Integer idProduto;
     private String descricaoProduto;
-    private Integer idCategoria;
+    private CategoriaProduto categoriaProduto;
     private Integer quantidadeExistente;
 
     public Produto() {
@@ -34,12 +34,12 @@ public class Produto implements Serializable {
         this.descricaoProduto = descricaoProduto;
     }
 
-    public Integer getIdCategoria() {
-        return idCategoria;
+    public CategoriaProduto getCategoriaProduto() {
+        return categoriaProduto;
     }
 
-    public void setIdCategoria(Integer idCategoria) {
-        this.idCategoria = idCategoria;
+    public void setCategoriaProduto(CategoriaProduto categoriaProduto) {
+        this.categoriaProduto = categoriaProduto;
     }
 
     public Integer getQuantidadeExistente() {
@@ -73,8 +73,6 @@ public class Produto implements Serializable {
         return Objects.equals(this.idProduto, other.idProduto);
     }
 
-    
-    
     @Override
     public String toString() {
         return String.format("%s[idProduto=%d]", getClass().getSimpleName(), getIdProduto());

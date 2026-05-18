@@ -18,16 +18,16 @@
 
                             <h:outputLabel value="Produto:" for="Produto"/>
                             <p:selectOneMenu id="Produto"
-                                             value="#{armazemBean.produto}"
+                                             value="#{entradaArmazemBean.armazem.produto}"
                                              required="true"
                                              converter="omnifaces.SelectItemsConverter" requiredMessage="Informe o produto">
                                 <f:selectItem itemLabel="Selecione um Produto" />
-                                <f:selectItems value="#{produtoBean.listaProdutos}"  var="pd"  itemValue="#{pd}" itemLabel="#{pd.descricaoProduto}"/>
+                                <f:selectItems value="#{entradaArmazemBean.listaProdutos}"  var="pd"  itemValue="#{pd}" itemLabel="#{pd.descricaoProduto}"/>
                             </p:selectOneMenu>
 
                             <h:outputLabel value="Preço de Compra (Kz)" for="preco"/>
                             <p:inputText id="preco"
-                                         value="#{armazemBean.armazem.precoProduto}"
+                                         value="#{entradaArmazemBean.armazem.precoProduto}"
                                          required="true"
                                          requiredMessage="Informe o preço da Compra">
                                 <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
@@ -35,7 +35,7 @@
 
                             <h:outputLabel value="Quantidade Comprado" for="qtd"/>
                             <p:inputText id="qtd"
-                                         value="#{armazemBean.armazem.quantidadeProduto}"
+                                         value="#{entradaArmazemBean.armazem.quantidadeProduto}"
                                          required="true"
                                          requiredMessage="Informe a quantidade">
                                 <f:convertNumber integerOnly="true"/>
@@ -43,10 +43,10 @@
 
                             <h:outputLabel value="Data de Compra" for="dataCompra"/>
                             <p:datePicker id="dataCompra"
-                                          value="#{armazemBean.armazem.dataCompra}"
+                                          value="#{entradaArmazemBean.armazem.dataCompra}"
                                           pattern="dd/MM/yyyy"
                                           showIcon="true"
-                                          maxdate="#{armazemBean.hoje}"/>
+                                          maxdate="#{entradaArmazemBean.hoje}"/>
 
                         </h:panelGrid>
 
@@ -54,14 +54,14 @@
 
                         <div style="text-align:center; margin-top:15px;">
                             <p:commandButton value="Guardar"
-                                             action="#{armazemBean.salvar}"
+                                             action="#{entradaArmazemBean.salvar}"
                                              update="frmArmazem"
                                              icon="pi pi-save"
                                              styleClass="ui-button-success"
                                              style="margin-right:10px;"/>
 
                             <p:commandButton value="Limpar"
-                                             action="#{armazemBean.novo}"
+                                             action="#{entradaArmazemBean.novo}"
                                              update="frmArmazem"
                                              icon="pi pi-refresh"
                                              styleClass="ui-button-secondary"

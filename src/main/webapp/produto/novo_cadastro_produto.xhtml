@@ -24,9 +24,10 @@
 
                             <h:outputLabel value="Categoria:" for="categoria"/>
                             <p:selectOneMenu id="categoria"
-                                             value="#{produtoBean.produto.idCategoria}"
+                                             value="#{produtoBean.produto.categoriaProduto}"
                                              required="true"
                                              requiredMessage="Seleccione a categoria"
+                                             converter="omnifaces.SelectItemsConverter"
                                              style="width:100%;">
 
                                 <f:selectItem itemLabel="-- Seleccione --" itemValue=""/>
@@ -34,12 +35,9 @@
                                 <f:selectItems value="#{categoriaBean.listaCategorias}" 
                                                var="cat" 
                                                itemLabel="#{cat.descricaoCategoria}" 
-                                               itemValue="#{cat.idCategoria}" />
+                                               itemValue="#{cat}" />
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Quantidade Inicial:" for="qtd" />
-                            <p:inputNumber id="qtd" value="#{produtoBean.produto.quantidadeExistente}" 
-                                           minValue="0" decimalPlaces="0" style="width:100%" />
 
                         </h:panelGrid>
 

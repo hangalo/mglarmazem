@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import skylink.mglarmazem.bdutil.ConnectionDB;
-import skylink.mglarmazem.modelo.Sector;
+import skylink.armazem.modelo.Sector;
 
 /**
  * @author Henriques

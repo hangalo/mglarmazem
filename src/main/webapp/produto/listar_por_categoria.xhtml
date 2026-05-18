@@ -2,30 +2,30 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
-      xmlns:p="http://primefaces.org/ui"
       xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
       xmlns:f="jakarta.faces.core">
 
     <body>
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
 
-            <ui:define name="top">
-                Gestão de Produtos
-            </ui:define>
+            <f:metadata>
+                <f:viewAction action="#{produtoBean.limparParaPesquisa}" />
+            </f:metadata>
 
             <ui:define name="content">
-                <h:form id="frmProduto">
 
+                <h:form id="frmProduto">
                     <p:growl id="msgs" showDetail="true" />
 
-                    <p:panel header="Pesquisa por Categoria">
-                        <h:panelGrid columns="3" cellpadding="10">
-                            <h:outputLabel value="Categoria:" for="categoria"/>
+                    <p:panel header="Pesquisa Por Categoria" style="max-width:1000px; margin:auto 0 20px 0;">
+                        <h:panelGrid columns="1" cellpadding="10" style="width:60%;">
+                            <h:outputLabel value="" for="categoria"/>
 
                             <p:selectOneMenu id="categoria"
                                              value="#{produtoBean.filtroIdCategoria}">
-                                <f:selectItem itemLabel="Selecione a Ctegoria" itemValue=""/>
+                                <f:selectItem itemLabel="Selecione a Categoria" itemValue=""/>
                                 <f:selectItems value="#{categoriaBean.listaCategorias}" 
                                                var="cat" 
                                                itemLabel="#{cat.descricaoCategoria}" 
@@ -34,7 +34,7 @@
 
                             <h:panelGroup>
                                 <p:commandButton value="Pesquisar" 
-                                                 action="#{produtoBean.pesquisarPorCategoria}" 
+                                                 action="#{produtoBean.pesquisarPorCategoria()}" 
                                                  update="tabelaProdutos msgs" 
                                                  icon="pi pi-search" 
                                                  styleClass="ui-button-info" 
@@ -47,44 +47,36 @@
                                                  styleClass="ui-button-secondary" 
                                                  style="margin-right: 10px"/>
 
-                                <p:commandButton value="Limpar"
-                                                 action="#{produtoBean.novo}"
-                                                 update="categoria tabelaProdutos msgs" 
-                                                 icon="pi pi-times"
-                                                 process="@this"
-                                                 immediate="true"
-                                                 styleClass="ui-button-secondary" />
                             </h:panelGroup>
                         </h:panelGrid>
                     </p:panel>
-
-                    <p:spacer height="20" />
 
                     <p:dataTable id="tabelaProdutos" 
                                  value="#{produtoBean.listaProdutos}" 
                                  var="p" 
                                  paginator="true" 
                                  rows="10" 
+                                 paginatorPosition="bottom"
+                                 paginatorAlwaysVisible="false"
                                  emptyMessage="Nenhum produto encontrado."
                                  stripedRows="true">
 
-                        <p:column headerText="Código" width="10%">
+                        <p:column headerText="Código" width="15%" style="text-align: center">
                             <h:outputText value="#{p.idProduto}" />
                         </p:column>
 
-                        <p:column headerText="Descrição do Produto">
+                        <p:column headerText="Descrição do Produto" width="15%" style="text-align: center">
                             <h:outputText value="#{p.descricaoProduto}" />
                         </p:column>
 
-                        <p:column headerText="ID Categoria" width="15%">
-                            <h:outputText value="#{p.idCategoria}" />
+                        <p:column headerText="Codigo da Categoria" width="15%" style="text-align: center">
+                            <h:outputText value="#{p.categoriaProduto.idCategoria}" />
                         </p:column>
 
                         <p:column headerText="Estoque Atual" width="15%" style="text-align: center">
                             <h:outputText value="#{p.quantidadeExistente}" 
                                           styleClass="#{p.quantidadeExistente le 5 ? 'text-danger font-bold' : ''}" />
                         </p:column>
-
 
                     </p:dataTable>
 

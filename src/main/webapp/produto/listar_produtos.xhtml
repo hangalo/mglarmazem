@@ -20,7 +20,7 @@
                         <h1>Gestão de Produtos</h1>  </div>
 
 
-                        <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
+                         <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
                                      paginator="true" rows="10" stripedRows="true" style="margin-top:20px;"
                                      emptyMessage="Nenhum produto encontrado.">
 
@@ -33,7 +33,7 @@
                             </p:column>
                             
                             <p:column headerText="Categoria" style="text-align: center;">
-                                <h:outputText value="#{p.idCategoria}" />
+                                <h:outputText value="#{p.categoriaProduto.descricaoCategoria}" />
                             </p:column>
 
                             <p:column headerText="Ações" width="120" style="text-align: center;">

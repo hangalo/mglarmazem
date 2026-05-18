@@ -4,7 +4,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
 import java.util.List;
-import skylink.mglarmazem.modelo.CategoriaProduto;
+import skylink.armazem.modelo.CategoriaProduto;
 import skylinkmglarmazem.dao.CategoriaProdutoDAO;
 
 /**

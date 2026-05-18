@@ -1,4 +1,4 @@
-package skylink.mglarmazem.modelo;
+package skylink.armazem.modelo;
 
 import java.io.Serializable;
 import java.util.Objects;

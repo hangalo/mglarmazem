@@ -20,9 +20,10 @@ public class EntradaArmazemDAO {
     private static final String UPDATE = "UPDATE entrada_armazem SET data_registo=?, preco_produto=?, data_compra=?, quantidade_produto=?, id_produto=? WHERE id_armazem=?";
     private static final String DELETE = "DELETE FROM entrada_armazem WHERE id_armazem=?";
 
-    private static final String LISTAR = "SELECT a.*, p.descricao_produto as descricao_prod FROM entrada_armazem a INNER JOIN produto p ON a.id_produto = p.id_produto ORDER BY a.data_registo DESC";
+    private static final String LISTAR = "SELECT a.*, p.id_produto as id_produto_prod, p.descricao_produto as descricao_prod FROM entrada_armazem a INNER JOIN produto p ON a.id_produto = p.id_produto ORDER BY a.data_registo DESC";
     private static final String POR_DATAS = "SELECT a.*, p.id_produto as id_produto_prod, p.descricao_produto as descricao_prod FROM entrada_armazem a INNER JOIN produto p ON a.id_produto = p.id_produto WHERE a.data_compra BETWEEN ? AND ? ORDER BY a.data_compra DESC";
-    private static final String POR_PRODUTO = "SELECT a.*, p.descricao_produto as descricao_prod FROM entrada_armazem a INNER JOIN produto p ON a.id_produto = p.id_produto WHERE a.id_produto = ? ORDER BY a.data_registo DESC";
+    
+    private static final String LISTAR_POR_PRODUTO = "SELECT p.descricao_produto AS descricao_prod, SUM(e.quantidade_produto) AS total_quantidade, SUM(e.quantidade_produto * e.preco_produto) AS total_valor FROM produto p INNER JOIN entrada_armazem e ON p.id_produto = e.id_produto WHERE e.data_compra BETWEEN ? AND ? GROUP BY p.descricao_produto";    
 
     private static final String ATUALIZAR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente + ? WHERE id_produto = ?";
 
@@ -49,29 +50,31 @@ public class EntradaArmazemDAO {
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
-            System.err.println("Erro ao inserir produto: " + e.getMessage());
+            LOGGER.log(Level.SEVERE, "Erro ao inserir produto", e);
             return false;
         } finally {
             ConnectionDB.closeConnection(conn, ps);
         }
     }
 
-
     public List<EntradaArmazem> listarTudo() {
         List<EntradaArmazem> lista = new ArrayList<>();
-        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(LISTAR); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(LISTAR); 
+             ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 lista.add(map(rs));
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao listar", e);
+            LOGGER.log(Level.SEVERE, "Erro ao listar tudo", e);
         }
         return lista;
     }
 
     public List<EntradaArmazem> pesquisarPorDatas(java.util.Date inicio, java.util.Date fim) {
         List<EntradaArmazem> lista = new ArrayList<>();
-        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(POR_DATAS)) {
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(POR_DATAS)) {
             ps.setDate(1, new java.sql.Date(inicio.getTime()));
             ps.setDate(2, new java.sql.Date(fim.getTime()));
             try (ResultSet rs = ps.executeQuery()) {
@@ -80,30 +83,61 @@ public class EntradaArmazemDAO {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro por datas", e);
+            LOGGER.log(Level.SEVERE, "Erro ao pesquisar por datas", e);
         }
         return lista;
     }
     
-    private EntradaArmazem map(ResultSet rs) throws SQLException {
-    EntradaArmazem entrada = new EntradaArmazem();
-    
-    entrada.setIdArmazem(rs.getInt("id_armazem")); 
-    entrada.setPrecoProduto(rs.getDouble("preco_produto")); 
-    entrada.setQuantidadeProduto(rs.getInt("quantidade_produto"));
-    entrada.setDataCompra(rs.getDate("data_compra"));
-    
-    if (rs.getTimestamp("data_registo") != null) {
-        entrada.setDataRegisto(new java.util.Date(rs.getTimestamp("data_registo").getTime()));
+    public List<EntradaArmazem> pesquisarProduto(java.util.Date inicio, java.util.Date fim) throws SQLException {
+        List<EntradaArmazem> lista = new ArrayList<>();
+
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(LISTAR_POR_PRODUTO)) {
+             
+            ps.setDate(1, new java.sql.Date(inicio.getTime()));
+            ps.setDate(2, new java.sql.Date(fim.getTime()));
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+
+                    lista.add(mapRelatorio(rs));
+                }
+            }
+        } 
+        return lista;
     }
 
-    Produto produto = new Produto();
-    
-    produto.setIdProduto(rs.getInt("id_produto_prod")); 
-    produto.setDescricaoProduto(rs.getString("descricao_prod"));
-    
-    entrada.setProduto(produto);
+    private EntradaArmazem map(ResultSet rs) throws SQLException {
+        EntradaArmazem entrada = new EntradaArmazem();
+        entrada.setIdArmazem(rs.getInt("id_armazem"));
+        entrada.setPrecoProduto(rs.getDouble("preco_produto")); 
+        entrada.setDataCompra(rs.getDate("data_compra"));
+        entrada.setQuantidadeProduto(rs.getInt("quantidade_produto"));
+        entrada.setDataRegisto(rs.getTimestamp("data_registo"));
 
-    return entrada;
-}
+        Produto produto = new Produto();
+        produto.setIdProduto(rs.getInt("id_produto_prod"));
+        produto.setDescricaoProduto(rs.getString("descricao_prod"));
+        entrada.setProduto(produto);
+
+        return entrada;
+    }
+
+    private EntradaArmazem mapRelatorio(ResultSet rs) throws SQLException {
+        EntradaArmazem entrada = new EntradaArmazem(
+            rs.getString("descricao_prod"), 
+            rs.getInt("total_quantidade"), 
+            rs.getBigDecimal("total_valor") 
+        );
+        
+        Produto produto = new Produto();
+        produto.setDescricaoProduto(rs.getString("descricao_prod"));
+        entrada.setProduto(produto);
+
+        return entrada;
+    }
+
+    public static String getLISTAR_POR_PRODUTO() {
+        return LISTAR_POR_PRODUTO;
+    }
 }

@@ -6,12 +6,15 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 import skylink.armazem.modelo.SaidaArmazem;
+import skylink.mglarmazem.modelo.EntradaArmazem;
 import skylinkmglarmazem.dao.ProdutoDAO;
 import skylinkmglarmazem.dao.SaidaArmazemDAO;
 
-/** 
+/**
  * @author Henriques
  */
 @Named("saidaArmazemBean")
@@ -21,42 +24,83 @@ public class SaidaArmazemBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private SaidaArmazem saida;
-     private final ProdutoDAO produtoDAO = new ProdutoDAO();
+    private List<SaidaArmazem> listaSaidas; 
+    private List<EntradaArmazem> listaSaidasPorProduto; 
+
+    private Date dataInicio;
+    private Date dataFim;
+    private Date hoje = new Date();
+
+    private final ProdutoDAO produtoDAO = new ProdutoDAO();
     private final SaidaArmazemDAO dao = new SaidaArmazemDAO();
 
     @PostConstruct
     public void init() {
         limpar();
+        carregarHistorico();
     }
 
-    
     public void limpar() {
-        saida = new SaidaArmazem();
-        saida.setDataSaidaArmazem(new Date()); 
+        this.saida = new SaidaArmazem();
+        this.saida.setDataSaidaArmazem(new Date()); 
     }
 
-    
-public String registrar() {
-    if (dao.registrarSaida(saida)) {
-        produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
-        saida = new SaidaArmazem();        
-        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
-        return "saida_armazem?faces-redirect=true";       
-    } else {
-        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
-        return null;
+    public void limparFiltros() {
+        this.dataInicio = null;
+        this.dataFim = null;
+        if (this.listaSaidasPorProduto != null) {
+            this.listaSaidasPorProduto.clear();
+        }
     }
-}
+
+    public void carregarHistorico() {
+        try {
+            this.listaSaidas = dao.listarTudo();
+        } catch (SQLException e) {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível carregar o histórico de saídas.");
+        }
+    }
+
+    public void pesquisarSaidasProduto() throws SQLException {
+        if (dataInicio == null || dataFim == null) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o intervalo de datas.");
+            return;
+        }
+        this.listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
+    }
+
+    public String registrar() {
+        if (dao.registrarSaida(saida)) {
+            produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
+            limpar(); 
+            carregarHistorico();
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso");
+            return "saida_armazem?faces-redirect=true";       
+        } else {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados. Verifique os limites de estoque.");
+            return null;
+        }
+    }
    
     private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
-    public SaidaArmazem getSaida() {
-        return saida;
-    }
+    public SaidaArmazem getSaida() { return saida; }
+    public void setSaida(SaidaArmazem saida) { this.saida = saida; }
 
-    public void setSaida(SaidaArmazem saida) {
-        this.saida = saida;
-    }
+    public List<SaidaArmazem> getListaSaidas() { return listaSaidas; }
+    public void setListaSaidas(List<SaidaArmazem> listaSaidas) { this.listaSaidas = listaSaidas; }
+
+    public List<EntradaArmazem> getListaSaidasPorProduto() { return listaSaidasPorProduto; }
+    public void setListaSaidasPorProduto(List<EntradaArmazem> listaSaidasPorProduto) { this.listaSaidasPorProduto = listaSaidasPorProduto; }
+
+    public Date getDataInicio() { return dataInicio; }
+    public void setDataInicio(Date dataInicio) { this.dataInicio = dataInicio; }
+
+    public Date getDataFim() { return dataFim; }
+    public void setDataFim(Date dataFim) { this.dataFim = dataFim; }
+
+    public Date getHoje() { return hoje; }
+    public void setHoje(Date hoje) { this.hoje = hoje; }
 }

@@ -6,6 +6,8 @@ import jakarta.faces.context.FacesContext;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import skylink.armazem.modelo.Produto;
@@ -14,7 +16,7 @@ import skylinkmglarmazem.dao.EntradaArmazemDAO;
 import skylinkmglarmazem.dao.ProdutoDAO;
 
 /**
- * @author TECNICO
+ * @author Henriques
  */
 @Named("entradaArmazemBean")
 @ViewScoped
@@ -27,7 +29,8 @@ public class EntradaArmazemBean implements Serializable {
     private List<EntradaArmazem> listaArmazens;
     private List<Produto> listaProdutos;
 
-    private Double totalPreco = 0.0;
+    private BigDecimal totalPreco = BigDecimal.ZERO;
+    private Integer totalQuantidade = 0;
 
     private final EntradaArmazemDAO armazemDAO = new EntradaArmazemDAO();
     private final ProdutoDAO produtoDAO = new ProdutoDAO();
@@ -40,49 +43,57 @@ public class EntradaArmazemBean implements Serializable {
     @PostConstruct
     public void init() {
         novo();
-        try {
-            this.listaProdutos = produtoDAO.listarTudo();
-        } catch (Exception e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível carregar os produtos.");
-        }
+        this.listaProdutos = produtoDAO.listarTudo();
     }
 
     public void calcularTotal() {
-        this.totalPreco = 0.0;
+        this.totalPreco = BigDecimal.ZERO;
+        this.totalQuantidade = 0;
+        
         if (listaArmazens != null) {
             for (EntradaArmazem a : listaArmazens) {
-                if (a.getPrecoProduto() != null && a.getQuantidadeProduto() != null) {
-                    this.totalPreco += (a.getPrecoProduto() * a.getQuantidadeProduto());
+                if (a.getQuantidadeProduto() != null) {
+                    this.totalQuantidade += a.getQuantidadeProduto();
+                }
+                
+                if (a.getQuantidadeProduto() != null && a.getPrecoProduto() != null) {
+                    BigDecimal preco = BigDecimal.valueOf(a.getPrecoProduto());
+                    BigDecimal qtd = BigDecimal.valueOf(a.getQuantidadeProduto());
+                    this.totalPreco = this.totalPreco.add(preco.multiply(qtd));
                 }
             }
         }
     }
 
     public String salvar() {
+
         if (armazemDAO.salvar(armazem)) {
             produtoDAO.updateAumentarQuantidade(armazem.getQuantidadeProduto(), armazem.getProduto().getIdProduto());
-            armazem = new EntradaArmazem();
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
+            
+            novo(); 
+            
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso.");
             return "entrada_armazem?faces-redirect=true";
-        } else {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "Erro ao guardar dados");
-            return null;
-        }
+        } 
+        
+        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Não foi possível guardar os dados. Verifique o log do sistema.");
+        return null;
     }
 
     public void pesquisarPorDatas() {
-        try {
-            if (dataInicio == null || dataFim == null) {
-                adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Selecione o intervalo de datas.");
-                return;
-            }
-            listaArmazens = armazemDAO.pesquisarPorDatas(dataInicio, dataFim);
-
-            calcularTotal();
-
-        } catch (Exception e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro na pesquisa.");
+        if (!validarDatas()) {
+            return;
         }
+        listaArmazens = armazemDAO.pesquisarPorDatas(dataInicio, dataFim);
+        calcularTotal();
+    }
+    
+    public void pesquisarProduto() throws SQLException {
+        if (!validarDatas()) {
+            return;
+        }
+        listaArmazens = armazemDAO.pesquisarProduto(dataInicio, dataFim);
+        calcularTotal();
     }
 
     public void limparFiltros() {
@@ -91,26 +102,39 @@ public class EntradaArmazemBean implements Serializable {
         if (listaArmazens != null) {
             listaArmazens.clear();
         }
-        this.totalPreco = 0.0;
+        this.totalPreco = BigDecimal.ZERO;
+        this.totalQuantidade = 0;
     }
 
     public void novo() {
         this.armazem = new EntradaArmazem();
         this.armazem.setDataRegisto(new Date());
+        this.armazem.setProduto(new Produto()); 
         this.produto = new Produto();
-        this.totalPreco = 0.0;
+        this.totalPreco = BigDecimal.ZERO;
+        this.totalQuantidade = 0;
+    }
+
+    private boolean validarDatas() {
+        if (dataInicio == null || dataFim == null) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Selecione o intervalo de datas.");
+            return false;
+        }
+        return true;
     }
 
     private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
-
     public String getDescricaoProduto() { return descricaoProduto; }
     public void setDescricaoProduto(String descricaoProduto) { this.descricaoProduto = descricaoProduto; }
 
-    public Double getTotalPreco() { return totalPreco; }
-    public void setTotalPreco(Double totalPreco) { this.totalPreco = totalPreco; }
+    public BigDecimal getTotalPreco() { return totalPreco; }
+    public void setTotalPreco(BigDecimal totalPreco) { this.totalPreco = totalPreco; }
+
+    public Integer getTotalQuantidade() { return totalQuantidade; }
+    public void setTotalQuantidade(Integer totalQuantidade) { this.totalQuantidade = totalQuantidade; }
 
     public EntradaArmazem getArmazem() { return armazem; }
     public void setArmazem(EntradaArmazem armazem) { this.armazem = armazem; }

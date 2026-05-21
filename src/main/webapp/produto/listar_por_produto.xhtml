@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
+
+            <ui:define name="content">
+                <p:messages id="msgs" closable="true"/>
+
+                <h:form id="frmDatas">
+
+                    <p:panel header="Relatório de Entradas por Produto" style="max-width:900px; margin:auto 0 30px 0;">
+                        <h:panelGrid columns="4" cellpadding="10" style="width:100%;">
+
+                            <h:outputLabel value="Data Início:" for="dtInicio"/>
+                            <p:datePicker id="dtInicio"
+                                         value="#{entradaArmazemBean.dataInicio}"
+                                         pattern="dd/MM/yyyy"
+                                         showIcon="true"
+                                         required="true"
+                                         requiredMessage="Seleccione a data início"
+                                         maxdate="#{entradaArmazemBean.hoje}"/>
+
+                            <h:outputLabel value="Data Fim:" for="dtFim"/>
+                            <p:datePicker id="dtFim"
+                                         value="#{entradaArmazemBean.dataFim}"
+                                         pattern="dd/MM/yyyy"
+                                         showIcon="true"
+                                         required="true"
+                                         requiredMessage="Seleccione a data fim"
+                                         maxdate="#{entradaArmazemBean.hoje}"/>
+
+                        </h:panelGrid>
+
+                        <p:separator/>
+
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <p:commandButton value="Pesquisar por Produto"
+                                             action="#{entradaArmazemBean.pesquisarProduto}"
+                                             update="frmDatas :msgs"
+                                             icon="pi pi-chart-bar"
+                                             styleClass="ui-button-info"/>
+
+                            <p:commandButton value="Limpar"
+                                             action="#{entradaArmazemBean.limparFiltros}"
+                                             update="frmDatas :msgs"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             immediate="true"/>
+                        </div>
+                    </p:panel>
+
+                    <p:panel>
+
+                        <p:dataTable id="tblDatas"
+                                     value="#{entradaArmazemBean.listaArmazens}"
+                                     var="a"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="#{entradaArmazemBean.listaArmazens.size() gt 10}"
+                                     emptyMessage="Nenhum registo encontrado no período."
+                                     styleClass="ui-datatable-striped"
+                                     sortMode="multiple"
+                                     style="width:100%;">
+
+                            <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}" style="width:400px; text-align:left;">
+                                <h:outputText value="#{a.produto.descricaoProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Quantidade Acumulada" sortBy="#{a.quantidadeProduto}" style="width:200px; text-align:center;">
+                                <h:outputText value="#{a.quantidadeProduto}" style="font-weight:bold;"/>
+                            </p:column>
+
+                            <p:column headerText="Valor Total Acumulado" sortBy="#{a.totalValorRelatorio}" style="width:250px; text-align:right; padding-right:15px;">
+                                <h:outputText value="#{a.totalValorRelatorio}" style="font-weight:bold; color: #2c3e50;">
+                                    <f:convertNumber type="currency" currencySymbol="Kz " maxFractionDigits="2" minFractionDigits="2"/>
+                                </h:outputText>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

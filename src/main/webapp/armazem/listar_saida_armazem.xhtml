@@ -9,17 +9,17 @@
     <body>
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
-<ui:define name="content">
-           <h:form id="frmTabela">
-                    <p:panel header="Histórico  Movimentos de Saída" style="max-width:1100px; margin:0 auto;">
-                        
+            <ui:define name="content">
+                <h:form id="frmTabela">
+                    <p:panel header="Histórico de Movimentos de Saída" style="max-width:1100px; margin:0 auto;">
+
                         <p:dataTable id="tblSaidas" 
                                      value="#{saidaArmazemBean.listaSaidas}" 
                                      var="s" 
                                      paginator="true" 
                                      rows="10" 
                                      paginatorPosition="bottom"
-                                     paginatorAlwaysVisible="#{saidaArmazemBean.listaSaidas.size() gt 10}"
+                                     paginatorAlwaysVisible="false"
                                      emptyMessage="Nenhum registo de saída encontrado no sistema."
                                      styleClass="ui-datatable-striped"
                                      style="width:100%;">
@@ -28,21 +28,27 @@
                                 <h:outputText value="#{s.idSaidaArmazem}"/>
                             </p:column>
 
-                            <p:column headerText="Código do Produto" style="width:150px; text-align:center;">
-                                <h:outputText value="#{s.idProduto}"/>
+                            <p:column headerText="Produto" style="text-align:left;">
+                                <h:outputText value="#{s.entradaArmazem.produto.descricaoProduto}"/>
                             </p:column>
 
-                            <p:column headerText="Código do Sector" style="width:150px; text-align:center;">
-                                <h:outputText value="#{s.idSector}"/>
+                            <p:column headerText="Sector de Destino" style="text-align:left;">
+                                <h:outputText value="#{s.sector.descricaoSector}"/>
                             </p:column>
 
-                            <p:column headerText="Qtd. Retirada" style="width:150px; text-align:center;">
+                            <p:column headerText="Qtd. Retirada" style="width:120px; text-align:center;">
                                 <h:outputText value="#{s.quantidadeSaidaArmazem}" style="font-weight:bold; color:#c0392b;"/>
                             </p:column>
 
-                            <p:column headerText="Data e Hora do Movimento" style="text-align:center;">
+                            <p:column headerText="Valor Total" style="width:150px; text-align:right; padding-right:10px;">
+                                <h:outputText value="#{saidaArmazemBean.calcularValorTotal(s)}">
+                                    <f:convertNumber type="currency" currencySymbol="Kz " maxFractionDigits="2" minFractionDigits="2"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Data" style="width:140px; text-align:center;">
                                 <h:outputText value="#{s.dataSaidaArmazem}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy" timeZone="Africa/Luanda"/>
                                 </h:outputText>
                             </p:column>
 
@@ -50,8 +56,6 @@
                     </p:panel>
                 </h:form>
             </ui:define>
-
-
         </ui:composition>
 
     </body>

@@ -12,29 +12,25 @@ public class EntradaArmazem {
     
     private Integer idArmazem;
     private Date dataRegisto;
-    private Double precoProduto; // Mantido como Double para não quebrar o seu método salvar antigo, se preferir
+    private Double precoProduto; 
     private Date dataCompra;
     private Integer quantidadeProduto;
     private Produto produto;
     
-    // Atributo extra ou reutilizado para armazenar o valor total calculado do relatório agrupado
     private BigDecimal totalValorRelatorio;
 
-    // Construtor padrão (Vazio) - CRUCIAL para o JSF / PrimeFaces instanciar no Bean
     public EntradaArmazem() {
     }
 
-    // CORRIGIDO: Construtor específico para a pesquisa agrupada por produto (Relatório)
+
     public EntradaArmazem(String descricaoProd, int totalQuantidade, BigDecimal totalValor) {
         this.quantidadeProduto = totalQuantidade;
         this.totalValorRelatorio = totalValor;
         
-        // Inicializa o objeto produto com a descrição para evitar NullPointerException na View
         this.produto = new Produto();
         this.produto.setDescricaoProduto(descricaoProd);
     }
 
-    // Construtor completo para persistência/listagem normal
     public EntradaArmazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Produto produto) {
         this.idArmazem = idArmazem;
         this.dataRegisto = dataRegisto;
@@ -44,7 +40,6 @@ public class EntradaArmazem {
         this.produto = produto;
     }
 
-    // --- GETTERS E SETTERS ---
     public Integer getIdArmazem() {
         return idArmazem;
     }

@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 import skylink.armazem.modelo.SaidaArmazem;
-import skylink.mglarmazem.modelo.EntradaArmazem;
+import skylink.mglarmazem.modelo.EntradaArmazem; 
 import skylinkmglarmazem.dao.ProdutoDAO;
 import skylinkmglarmazem.dao.SaidaArmazemDAO;
 
@@ -37,7 +37,15 @@ public class SaidaArmazemBean implements Serializable {
     @PostConstruct
     public void init() {
         limpar();
-        carregarHistorico();
+        carregarHistoricoUnsafe();
+    }
+
+    private void carregarHistoricoUnsafe() {
+        try {
+            carregarHistorico();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void limpar() {
@@ -52,13 +60,9 @@ public class SaidaArmazemBean implements Serializable {
             this.listaSaidasPorProduto.clear();
         }
     }
-
-    public void carregarHistorico() {
-        try {
-            this.listaSaidas = dao.listarTudo();
-        } catch (SQLException e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível carregar o histórico de saídas.");
-        }
+    
+    public void carregarHistorico() throws SQLException {
+        this.listaSaidas = dao.listarTudo();
     }
 
     public void pesquisarSaidasProduto() throws SQLException {
@@ -72,14 +76,23 @@ public class SaidaArmazemBean implements Serializable {
     public String registrar() {
         if (dao.registrarSaida(saida)) {
             produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
-            limpar(); 
-            carregarHistorico();
+            
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
             adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso");
+            
             return "saida_armazem?faces-redirect=true";       
         } else {
             adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados. Verifique os limites de estoque.");
             return null;
         }
+    }
+
+    public Double calcularValorTotal(SaidaArmazem s) {
+        if (s == null || s.getQuantidadeSaidaArmazem() == null || s.getEntradaArmazem() == null) {
+            return 0.0;
+        }
+        Double preco = s.getEntradaArmazem().getPrecoProduto(); 
+        return s.getQuantidadeSaidaArmazem() * (preco != null ? preco : 0.0);
     }
    
     private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {

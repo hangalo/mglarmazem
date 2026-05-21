@@ -9,18 +9,9 @@
     <body>
 
         <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
-
-            <ui:define name="top">
-                top
-            </ui:define>
-
-            <ui:define name="left">
-                left
-            </ui:define>
-
-            <ui:define name="content">
+<ui:define name="content">
            <h:form id="frmTabela">
-                    <p:panel header="Histórico Bruto de Movimentos de Saída" style="max-width:1100px; margin:0 auto;">
+                    <p:panel header="Histórico  Movimentos de Saída" style="max-width:1100px; margin:0 auto;">
                         
                         <p:dataTable id="tblSaidas" 
                                      value="#{saidaArmazemBean.listaSaidas}" 
@@ -51,7 +42,7 @@
 
                             <p:column headerText="Data e Hora do Movimento" style="text-align:center;">
                                 <h:outputText value="#{s.dataSaidaArmazem}">
-                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="Africa/Luanda"/>
+                                    <f:convertDateTime pattern="dd/MM/yyyy"/>
                                 </h:outputText>
                             </p:column>
 

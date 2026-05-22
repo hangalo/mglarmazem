@@ -65,7 +65,7 @@ public class SaidaArmazemBean implements Serializable {
         this.listaSaidas = dao.listarTudo();
     }
 
-    public void pesquisarSaidasProduto() throws SQLException {
+ public void pesquisarSaidasProduto() throws SQLException {
         if (dataInicio == null || dataFim == null) {
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o intervalo de datas.");
             return;
@@ -73,19 +73,18 @@ public class SaidaArmazemBean implements Serializable {
         this.listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
     }
 
-    public String registrar() {
-        if (dao.registrarSaida(saida)) {
-            produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
-            
-            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso");
-            
-            return "saida_armazem?faces-redirect=true";       
-        } else {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados. Verifique os limites de estoque.");
-            return null;
-        }
+
+public String registrar() {
+    if (dao.registrarSaida(saida)) {
+        produtoDAO.updateDiminuirQuantidade(saida.getQuantidadeSaidaArmazem(), saida.getIdProduto());
+        saida = new SaidaArmazem();        
+        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
+        return "saida_armazem?faces-redirect=true";       
+    } else {
+        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
+        return null;
     }
+}
 
     public Double calcularValorTotal(SaidaArmazem s) {
         if (s == null || s.getQuantidadeSaidaArmazem() == null || s.getEntradaArmazem() == null) {

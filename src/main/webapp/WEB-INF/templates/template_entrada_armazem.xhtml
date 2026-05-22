@@ -27,15 +27,13 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-                        <li><h:link value="Início" outcome="/index" /></li>
+                        <li><a href="../index.faces">Início</a></li>
+                        <li><h:link value="💼 Registar Entrada no Armazém" outcome="/entrada_armazem/registar_entrada"/></li>
+                        <li><h:link value="💼 Pesquisar entre Datas" outcome="/entrada_armazem/lista_entre_datas"/></li>                        <li><h:link value="💼 Pesquisa por categoria" outcome="/produto/listar_por_categoria"/></li>
+                        <li><h:link value="&#128187; Pesquisa por Produto" outcome="/entrada_armazem/listar_por_produto"/></li>
 
-
-                        <li><h:link value="💼 Gestão de Entrada no Armazém" outcome="/entrada_armazem/index_entrada_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão de Saída do Armazem" outcome="/saida_armazem/index_saida_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão dos Produtos" outcome="/produto/index_produtos"/></li>
                     </ul>
+
 
                 </ui:insert>
             </nav>

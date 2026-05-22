@@ -7,24 +7,20 @@
       xmlns:f="jakarta.faces.core">
 
     <body>
-
-        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
-
+        <ui:composition template="./../WEB-INF/templates/template_produtos.xhtml">
+            
             <f:metadata>
                 <f:viewAction action="#{produtoBean.limparParaPesquisa}" />
             </f:metadata>
 
             <ui:define name="content">
-
                 <h:form id="frmProduto">
                     <p:growl id="msgs" showDetail="true" />
 
                     <p:panel header="Pesquisa Por Categoria" style="max-width:1000px; margin:auto 0 20px 0;">
                         <h:panelGrid columns="1" cellpadding="10" style="width:60%;">
-                            <h:outputLabel value="" for="categoria"/>
-
-                            <p:selectOneMenu id="categoria"
-                                             value="#{produtoBean.filtroIdCategoria}">
+                            
+                            <p:selectOneMenu id="categoria" value="#{produtoBean.filtroIdCategoria}">
                                 <f:selectItem itemLabel="Selecione a Categoria" itemValue=""/>
                                 <f:selectItems value="#{categoriaBean.listaCategorias}" 
                                                var="cat" 
@@ -46,7 +42,6 @@
                                                  icon="pi pi-list" 
                                                  styleClass="ui-button-secondary" 
                                                  style="margin-right: 10px"/>
-
                             </h:panelGroup>
                         </h:panelGrid>
                     </p:panel>
@@ -75,15 +70,13 @@
 
                         <p:column headerText="Estoque Atual" width="15%" style="text-align: center">
                             <h:outputText value="#{p.quantidadeExistente}" 
-                                          styleClass="#{p.quantidadeExistente le 5 ? 'text-danger font-bold' : ''}" />
+                                          styleClass="#{p.quantidadeExistente &lt;= 5 ? 'text-danger font-bold' : ''}" />
                         </p:column>
 
                     </p:dataTable>
-
                 </h:form>
             </ui:define>
 
         </ui:composition>
-
     </body>
 </html>

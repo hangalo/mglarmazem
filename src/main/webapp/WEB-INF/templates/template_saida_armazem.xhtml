@@ -1,4 +1,3 @@
-<?xml version='1.0' encoding='UTF-8' ?> 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
@@ -27,15 +26,16 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-                        <li><h:link value="Início" outcome="/index" /></li>
+                        <li><a href="../index.faces">Início</a></li>
+                        <li><h:link value="🏠 Voltar ao Início" outcome="/index" /></li>
 
+                        <li><h:link value="💼  Registar Saida" outcome="/saida_armazem/registar_saida"/></li>
 
-                        <li><h:link value="💼 Gestão de Entrada no Armazém" outcome="/entrada_armazem/index_entrada_armazem"/></li>
+                        <li><h:link value="💼 Pesquisa Entre Datas" outcome="/saida_armazem/listar_entre_datas_por_produto"/></li>
 
-                        <li><h:link value="💼 Gestão de Saída do Armazem" outcome="/saida_armazem/index_saida_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão dos Produtos" outcome="/produto/index_produtos"/></li>
+                        <li><h:link value="💼 Listar Saidas" outcome="/saida_armazem/listar_saida_armazem"/></li>
                     </ul>
+
 
                 </ui:insert>
             </nav>

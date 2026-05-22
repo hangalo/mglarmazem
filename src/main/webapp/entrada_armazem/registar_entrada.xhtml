@@ -7,8 +7,9 @@
       xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui">
     <body>
-        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
-            <ui:define name="content">
+        <ui:composition template="./../WEB-INF/templates/template_entrada_armazem.xhtml">
+
+        <ui:define name="content">
                 <h:form id="frmArmazem">
 
                     <p:growl id="msgs" showDetail="true" life="4000"/>
@@ -33,7 +34,7 @@
                                 <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
                             </p:inputText>
 
-                            <h:outputLabel value="Quantidade Comprado" for="qtd"/>
+                            <h:outputLabel value="Quantidade Comprada" for="qtd"/>
                             <p:inputText id="qtd"
                                          value="#{entradaArmazemBean.armazem.quantidadeProduto}"
                                          required="true"

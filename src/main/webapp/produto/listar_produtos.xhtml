@@ -8,19 +8,18 @@
 
     <body>
 
-        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
-
+        <ui:composition template="./../WEB-INF/templates/template_produtos.xhtml">
             <ui:define name="content">
 
                 <h:form id="frmTabela">
                     <p:growl id="msgs" showDetail="true" />
 
-                     <p:panel style="max-width:1000px; margin:auto 0 20px 0;">
-                    <div style="text-align: center;">
-                        <h1>Gestão de Produtos</h1>  </div>
+                    <p:panel style="max-width:1000px; margin:auto 0 20px 0;">
+                        <div style="text-align: center;">
+                            <h1>Gestão de Produtos</h1>  </div>
 
 
-                         <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
+                        <p:dataTable id="tabelaProdutos" value="#{produtoBean.listaProdutos}" var="p" 
                                      paginator="true" rows="10" stripedRows="true" style="margin-top:20px;"
                                      emptyMessage="Nenhum produto encontrado.">
 
@@ -31,7 +30,7 @@
                             <p:column headerText="Descrição"  width="300" style="text-align: center;">
                                 <h:outputText value="#{p.descricaoProduto}" />
                             </p:column>
-                            
+
                             <p:column headerText="Categoria" style="text-align: center;">
                                 <h:outputText value="#{p.categoriaProduto.descricaoCategoria}" />
                             </p:column>
@@ -77,13 +76,13 @@
                                              icon="pi pi-save" style="margin-left:10px" />
                         </div>
                         <p:confirmDialog global="true" showEffect="fade" hideEffect="fade">
-                    <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
-                    <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat" />
-                </p:confirmDialog>
+                            <p:commandButton value="Sim" type="button" styleClass="ui-confirmdialog-yes" />
+                            <p:commandButton value="Não" type="button" styleClass="ui-confirmdialog-no ui-button-flat" />
+                        </p:confirmDialog>
                     </h:form>
                 </p:dialog>
 
-                
+
 
             </ui:define>
         </ui:composition>

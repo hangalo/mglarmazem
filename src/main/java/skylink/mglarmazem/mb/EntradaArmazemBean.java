@@ -49,13 +49,13 @@ public class EntradaArmazemBean implements Serializable {
     public void calcularTotal() {
         this.totalPreco = BigDecimal.ZERO;
         this.totalQuantidade = 0;
-        
+
         if (listaArmazens != null) {
             for (EntradaArmazem a : listaArmazens) {
                 if (a.getQuantidadeProduto() != null) {
                     this.totalQuantidade += a.getQuantidadeProduto();
                 }
-                
+
                 if (a.getQuantidadeProduto() != null && a.getPrecoProduto() != null) {
                     BigDecimal preco = BigDecimal.valueOf(a.getPrecoProduto());
                     BigDecimal qtd = BigDecimal.valueOf(a.getQuantidadeProduto());
@@ -66,18 +66,15 @@ public class EntradaArmazemBean implements Serializable {
     }
 
     public String salvar() {
-
         if (armazemDAO.salvar(armazem)) {
             produtoDAO.updateAumentarQuantidade(armazem.getQuantidadeProduto(), armazem.getProduto().getIdProduto());
-            
-            novo(); 
-            
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso.");
+            armazem = new EntradaArmazem();
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
             return "entrada_armazem?faces-redirect=true";
-        } 
-        
-        adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Não foi possível guardar os dados. Verifique o log do sistema.");
-        return null;
+        } else {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
+            return null;
+        }
     }
 
     public void pesquisarPorDatas() {
@@ -87,7 +84,7 @@ public class EntradaArmazemBean implements Serializable {
         listaArmazens = armazemDAO.pesquisarPorDatas(dataInicio, dataFim);
         calcularTotal();
     }
-    
+
     public void pesquisarProduto() throws SQLException {
         if (!validarDatas()) {
             return;
@@ -109,7 +106,7 @@ public class EntradaArmazemBean implements Serializable {
     public void novo() {
         this.armazem = new EntradaArmazem();
         this.armazem.setDataRegisto(new Date());
-        this.armazem.setProduto(new Produto()); 
+        this.armazem.setProduto(new Produto());
         this.produto = new Produto();
         this.totalPreco = BigDecimal.ZERO;
         this.totalQuantidade = 0;
@@ -127,32 +124,79 @@ public class EntradaArmazemBean implements Serializable {
         FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
-    public String getDescricaoProduto() { return descricaoProduto; }
-    public void setDescricaoProduto(String descricaoProduto) { this.descricaoProduto = descricaoProduto; }
+    public String getDescricaoProduto() {
+        return descricaoProduto;
+    }
 
-    public BigDecimal getTotalPreco() { return totalPreco; }
-    public void setTotalPreco(BigDecimal totalPreco) { this.totalPreco = totalPreco; }
+    public void setDescricaoProduto(String descricaoProduto) {
+        this.descricaoProduto = descricaoProduto;
+    }
 
-    public Integer getTotalQuantidade() { return totalQuantidade; }
-    public void setTotalQuantidade(Integer totalQuantidade) { this.totalQuantidade = totalQuantidade; }
+    public BigDecimal getTotalPreco() {
+        return totalPreco;
+    }
 
-    public EntradaArmazem getArmazem() { return armazem; }
-    public void setArmazem(EntradaArmazem armazem) { this.armazem = armazem; }
+    public void setTotalPreco(BigDecimal totalPreco) {
+        this.totalPreco = totalPreco;
+    }
 
-    public Produto getProduto() { return produto; }
-    public void setProduto(Produto produto) { this.produto = produto; }
+    public Integer getTotalQuantidade() {
+        return totalQuantidade;
+    }
 
-    public List<EntradaArmazem> getListaArmazens() { return listaArmazens; }
-    public void setListaArmazens(List<EntradaArmazem> listaArmazens) { this.listaArmazens = listaArmazens; }
+    public void setTotalQuantidade(Integer totalQuantidade) {
+        this.totalQuantidade = totalQuantidade;
+    }
 
-    public List<Produto> getListaProdutos() { return listaProdutos; }
-    public void setListaProdutos(List<Produto> listaProdutos) { this.listaProdutos = listaProdutos; }
+    public EntradaArmazem getArmazem() {
+        return armazem;
+    }
 
-    public Date getDataInicio() { return dataInicio; }
-    public void setDataInicio(Date dataInicio) { this.dataInicio = dataInicio; }
+    public void setArmazem(EntradaArmazem armazem) {
+        this.armazem = armazem;
+    }
 
-    public Date getDataFim() { return dataFim; }
-    public void setDataFim(Date dataFim) { this.dataFim = dataFim; }
+    public Produto getProduto() {
+        return produto;
+    }
 
-    public Date getHoje() { return hoje; }
+    public void setProduto(Produto produto) {
+        this.produto = produto;
+    }
+
+    public List<EntradaArmazem> getListaArmazens() {
+        return listaArmazens;
+    }
+
+    public void setListaArmazens(List<EntradaArmazem> listaArmazens) {
+        this.listaArmazens = listaArmazens;
+    }
+
+    public List<Produto> getListaProdutos() {
+        return listaProdutos;
+    }
+
+    public void setListaProdutos(List<Produto> listaProdutos) {
+        this.listaProdutos = listaProdutos;
+    }
+
+    public Date getDataInicio() {
+        return dataInicio;
+    }
+
+    public void setDataInicio(Date dataInicio) {
+        this.dataInicio = dataInicio;
+    }
+
+    public Date getDataFim() {
+        return dataFim;
+    }
+
+    public void setDataFim(Date dataFim) {
+        this.dataFim = dataFim;
+    }
+
+    public Date getHoje() {
+        return hoje;
+    }
 }

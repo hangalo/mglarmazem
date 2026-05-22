@@ -5,21 +5,18 @@
       xmlns:h="jakarta.faces.html">
 
     <h:head>
-
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <h:outputStylesheet name="estilos.css" library="css"/>
-        <title>Gestão de Armazem</title>
+        <title>Gestão de Produtos</title>
     </h:head>
 
     <h:body>
         <div class="container">
             <div class="header">
                 <ui:insert name="top">
-
-                    <h1>🌟 Gestão de armazem</h1>
+                    <h1>🌟 Gestão de Produtos</h1>
                     <p>Skylink</p>
-
                 </ui:insert>
             </div>
 
@@ -27,33 +24,26 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-                        <li><h:link value="Início" outcome="/index" /></li>
-
-
-                        <li><h:link value="💼 Gestão de Entrada no Armazém" outcome="/entrada_armazem/index_entrada_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão de Saída do Armazem" outcome="/saida_armazem/index_saida_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão dos Produtos" outcome="/produto/index_produtos"/></li>
-                    </ul>
-
-                </ui:insert>
+                        <li><a href="../index.faces">Início</a></li>
+                        <li><h:link value="🏠 Voltar ao Início" outcome="/index" /></li>
+                        
+                        
+                        <li><h:link value="💼 Lista dos Produtos" outcome="/produto/listar_produtos"/></li>
+                        <li><h:link value="💼 Pesquisa por categoria" outcome="/produto/listar_por_categoria"/></li>
+                        <li><h:link value="💼 Cadastro de Produto" outcome="/produto/novo_cadastro_produto"/></li>
+                    </ul> </ui:insert>
             </nav>
+            
             <main class="main">
                 <ui:insert name="content"></ui:insert>
             </main>
 
             <footer class="footer">
                 <ui:insert name="bottom">
-
                     <p>&copy; 2026 - Desenvolvido pelo grupo Skylink</p>
                     <p>📧 contato@exemplo.com | 📱 (244) 99999-9999</p>
-
-
-
                 </ui:insert>
             </footer>
         </div>
     </h:body>
-
 </html>

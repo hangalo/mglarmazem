@@ -7,7 +7,7 @@
       xmlns:f="jakarta.faces.core"
       xmlns:p="http://primefaces.org/ui">
     <body>
-        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
+        <ui:composition template="./../WEB-INF/templates/template_saida_armazem.xhtml">
             <ui:define name="content">
                 <h:form id="frmSaida">
 
@@ -56,21 +56,20 @@
 
                         <p:separator/>
 
-                        <div style="text-align:center; margin-top:15px;">
-                            <p:commandButton value="Registar Saída"
-                                             action="#{saidaArmazemBean.registrar}"
-                                             update="frmSaida"
-                                             icon="pi pi-check"
-                                             styleClass="ui-button-success"
-                                             style="margin-right:10px;"/>
+                        <p:commandButton value="Registar Saída"
+                                         action="#{saidaArmazemBean.registrar}"
+                                         update="frmSaida"
+                                         icon="pi pi-check"
+                                         styleClass="ui-button-success"
+                                         style="margin-right:10px;" />
 
-                            <p:commandButton value="Limpar"
-                                             action="#{saidaArmazemBean.limpar}"
-                                             update="frmSaida"
-                                             icon="pi pi-refresh"
-                                             styleClass="ui-button-secondary"
-                                             immediate="true"/>
-                        </div>
+                        <p:commandButton value="Limpar"
+                                         action="#{saidaArmazemBean.limpar}"
+                                         update="frmSaida"
+                                         icon="pi pi-refresh"
+                                         styleClass="ui-button-secondary"
+                                         immediate="true"/>
+                        
                     </p:panel>
                 </h:form>
             </ui:define>

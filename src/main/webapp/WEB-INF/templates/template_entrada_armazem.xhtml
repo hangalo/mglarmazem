@@ -3,13 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:h="jakarta.faces.html">
+    <title>Gestão de Produtos</title>
 
     <h:head>
 
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <h:outputStylesheet name="estilos.css" library="css"/>
-        <title>Gestão de Armazem</title>
+        <title>Gestão de Entrada</title>
     </h:head>
 
     <h:body>
@@ -17,7 +18,7 @@
             <div class="header">
                 <ui:insert name="top">
 
-                    <h1>🌟 Gestão de armazem</h1>
+                    <h1>🌟 Gestão de Entrada</h1>
                     <p>Skylink</p>
 
                 </ui:insert>
@@ -27,10 +28,10 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-                        <li><a href="../index.faces">Início</a></li>
-                        <li><h:link value="💼 Registar Entrada no Armazém" outcome="/entrada_armazem/registar_entrada"/></li>
-                        <li><h:link value="💼 Pesquisar entre Datas" outcome="/entrada_armazem/lista_entre_datas"/></li>                        <li><h:link value="💼 Pesquisa por categoria" outcome="/produto/listar_por_categoria"/></li>
-                        <li><h:link value="&#128187; Pesquisa por Produto" outcome="/entrada_armazem/listar_por_produto"/></li>
+                        <li><h:link value="🏠 Voltar ao Início" outcome="/index" /></li>
+                        <li><h:link value="&#128221; Registar Entrada " outcome="/entrada_armazem/registar_entrada"/></li>
+                        <li><h:link value="&#128198; Pesquisar entre Datas" outcome="/entrada_armazem/lista_entre_datas"/></li>
+                        <li><h:link value="&#129478; Pesquisa por Produto" outcome="/entrada_armazem/listar_por_produto"/></li>
 
                     </ul>
 

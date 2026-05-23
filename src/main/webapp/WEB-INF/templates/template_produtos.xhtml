@@ -24,16 +24,16 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-                        <li><a href="../index.faces">Início</a></li>
+
                         <li><h:link value="🏠 Voltar ao Início" outcome="/index" /></li>
-                        
-                        
-                        <li><h:link value="💼 Lista dos Produtos" outcome="/produto/listar_produtos"/></li>
-                        <li><h:link value="💼 Pesquisa por categoria" outcome="/produto/listar_por_categoria"/></li>
-                        <li><h:link value="💼 Cadastro de Produto" outcome="/produto/novo_cadastro_produto"/></li>
+
+                        <li><h:link value="&#128221; Novo Produto" outcome="/produto/novo_cadastro_produto"/></li>
+
+                        <li><h:link value="📋 Lista dos Produtos" outcome="/produto/listar_produtos"/></li>
+                        <li><h:link value="🔎 Pesquisa por categoria" outcome="/produto/listar_por_categoria"/></li>
                     </ul> </ui:insert>
             </nav>
-            
+
             <main class="main">
                 <ui:insert name="content"></ui:insert>
             </main>

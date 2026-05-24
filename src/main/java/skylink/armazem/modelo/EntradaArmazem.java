@@ -1,6 +1,7 @@
 package skylink.mglarmazem.modelo;
 
 import skylink.armazem.modelo.Produto;
+import skylink.armazem.modelo.Sector;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
@@ -9,24 +10,25 @@ import java.util.Objects;
  * @author Henriques
  */
 public class EntradaArmazem {
-    
+
     private Integer idArmazem;
     private Date dataRegisto;
-    private Double precoProduto; 
+    private Double precoProduto;
     private Date dataCompra;
     private Integer quantidadeProduto;
     private Produto produto;
-    
+    private Integer idSector;
+    private Sector sector;
+
     private BigDecimal totalValorRelatorio;
 
     public EntradaArmazem() {
     }
 
-
     public EntradaArmazem(String descricaoProd, int totalQuantidade, BigDecimal totalValor) {
         this.quantidadeProduto = totalQuantidade;
         this.totalValorRelatorio = totalValor;
-        
+
         this.produto = new Produto();
         this.produto.setDescricaoProduto(descricaoProd);
     }
@@ -84,6 +86,16 @@ public class EntradaArmazem {
         return produto;
     }
 
+    public Sector getSector() {
+        return sector;
+    }
+
+    public void setSector(Sector sector) {
+        setSector(sector);
+    }
+
+    
+
     public void setProduto(Produto produto) {
         this.produto = produto;
     }
@@ -96,10 +108,22 @@ public class EntradaArmazem {
         this.totalValorRelatorio = totalValorRelatorio;
     }
 
+    public Integer getIdSector() {
+        return idSector;
+    }
+
+    public void setIdSector(Integer idSector) {
+        this.idSector = idSector;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 97 * hash + Objects.hashCode(this.idArmazem);
+        hash = 89 * hash + Objects.hashCode(this.idArmazem);
+        hash = 89 * hash + Objects.hashCode(this.dataCompra);
+        hash = 89 * hash + Objects.hashCode(this.quantidadeProduto);
+        hash = 89 * hash + Objects.hashCode(this.produto);
+        hash = 89 * hash + Objects.hashCode(this.idSector);
         return hash;
     }
 
@@ -115,11 +139,18 @@ public class EntradaArmazem {
             return false;
         }
         final EntradaArmazem other = (EntradaArmazem) obj;
-        return Objects.equals(this.idArmazem, other.idArmazem);
+        if (!Objects.equals(this.idArmazem, other.idArmazem)) {
+            return false;
+        }
+        if (!Objects.equals(this.quantidadeProduto, other.quantidadeProduto)) {
+            return false;
+        }
+        return Objects.equals(this.idSector, other.idSector);
     }
 
     @Override
     public String toString() {
-        return "EntradaArmazem{" + "idArmazem=" + idArmazem + '}';
-    }  
+        return "EntradaArmazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", produto=" + produto + ", idSector=" + idSector + ", totalValorRelatorio=" + totalValorRelatorio + '}';
+    }
+
 }

@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_estoque.xhtml">
+            <ui:define name="content">
+                <h:form id="formEstoque">
+                    <p:growl id="msges" showDetail="true" skipDetailIfEqualsSummary="true" />
+
+                    <p:panel header="Filtro de Análise de Estoque" style="margin-bottom:20px">
+                        <h:panelGrid columns="7" cellpadding="5">
+
+                            <p:outputLabel for="sector" value="Sector:" />
+                            <p:selectOneMenu id="sector" value="#{estoqueBean.idSector}" required="true" requiredMessage="Selecione um setor">
+                                <f:selectItem itemLabel="Seleccione o Sector" itemValue="" />
+                                <f:selectItems value="#{estoqueBean.listaSectores}" var="sec" 
+                                               itemLabel="#{sec.descricaoSector}" itemValue="#{sec.idSector}" />
+                            </p:selectOneMenu>
+
+                            <p:outputLabel for="dataIni" value="Data Início:" />
+                            <p:datePicker id="dataIni" value="#{estoqueBean.dataInicio}" pattern="yyyy-MM-dd" showIcon="true" required="true" />
+
+                            <p:outputLabel for="dataFim" value="Data Fim:" />
+                            <p:datePicker id="dataFim" value="#{estoqueBean.dataFim}" pattern="yyyy-MM-dd" showIcon="true" required="true" />
+
+                            <h:panelGroup>
+                                <p:commandButton value="Pesquisar" action="#{estoqueBean.pesquisarEstoque()}" 
+                                                 update="tabelaEstoque msges" icon="pi pi-search" styleClass="ui-button-success" />
+                                <p:commandButton value="Limpar" action="#{estoqueBean.limparFiltros()}" 
+                                                 update="formEstoque" icon="pi pi-refresh" styleClass="ui-button-secondary" style="margin-left: 10px;" />
+                            </h:panelGroup>
+
+                        </h:panelGrid>
+                    </p:panel>
+
+                    <p:dataTable id="tabelaEstoque" value="#{estoqueBean.listaEstoqueFiltrado}" var="est"
+                                 emptyMessage="Nenhum registro de estoque encontrado para os filtros aplicados."
+                                 paginator="true" rows="10" paginatorPosition="bottom"
+                                 rowsPerPageTemplate="5,10,20"
+                                 stripedRows="true" showGridlines="true">
+
+                        <f:facet name="header">
+                            Estoque Atual vs. Movimentações do Período
+                        </f:facet>
+
+                        <p:column headerText="Sector" sortBy="#{est.descricaoSector.descricaoSector}">
+                            <h:outputText value="#{est.descricaoSector.descricaoSector}" />
+                        </p:column>
+
+                        <p:column headerText="Produto" sortBy="#{est.descricaoProduto.descricaoProduto}">
+                            <h:outputText value="#{est.descricaoProduto.descricaoProduto}" />
+                        </p:column>
+
+                        <p:column headerText="Total Entradas" style="text-align: center; color: #2e7d32; font-weight: bold;">
+                            <h:outputText value="#{est.totalEntradas}" />
+                        </p:column>
+
+                        <p:column headerText="Total Saídas" style="text-align: center; color: #c62828; font-weight: bold;">
+                            <h:outputText value="#{est.totalSaidas}" />
+                        </p:column>
+
+                        <p:column headerText="Qtd Existente (Físico)" style="text-align: center; background-color: #f5f5f5; font-weight: bold;">
+                            <h:outputText value="#{est.quantidadeExistente}" />
+                        </p:column>
+
+                    </p:dataTable>
+                </h:form>
+            </ui:define>
+
+
+
+        </ui:composition>
+
+    </body>
+</html>

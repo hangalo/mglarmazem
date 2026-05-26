@@ -10,7 +10,7 @@
 
         <ui:composition template="./../WEB-INF/templates/template_entrada_armazem.xhtml">
 
-        <ui:define name="content">
+            <ui:define name="content">
                 <p:messages id="msgs" closable="true"/>
 
                 <h:form id="frmDatas">
@@ -86,20 +86,15 @@
                                      styleClass="ui-datatable-striped"
                                      sortMode="multiple"
                                      style="width:100%;">
-
-                            <p:column headerText="Código do Produto" sortBy="#{a.produto.idProduto}">
-                                <h:outputText value="#{a.produto.idProduto}"/>
-                            </p:column>
-
                             <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}">
                                 <h:outputText value="#{a.produto.descricaoProduto}"/>
                             </p:column>
-                            
-                            
+
+
                             <p:column headerText="Sector" sortBy="#{a.sector.descricaoSector}">
                                 <h:outputText value="#{a.sector.descricaoSector}"/>
                             </p:column>
-                            
+
 
                             <p:column headerText="Preço (Kz)" sortBy="#{a.precoProduto}">
                                 <h:outputText value="#{a.precoProduto}">

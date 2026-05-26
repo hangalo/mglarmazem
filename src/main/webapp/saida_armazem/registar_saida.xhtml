@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:h="jakarta.faces.html"
@@ -20,20 +19,26 @@
                             <p:selectOneMenu id="produto"
                                              value="#{saidaArmazemBean.saida.idProduto}"
                                              required="true"
+                                             converter="omnifaces.SelectItemsConverter"
                                              requiredMessage="Informe o produto">
-                                <f:selectItem itemLabel="Selecione um Produto" itemValue=""/>
+                                <f:selectItem itemLabel="Selecione um Produto" itemValue="#{null}" noSelectionOption="true"/>
                                 <f:selectItems value="#{produtoBean.listaProdutos}" 
                                                var="p" 
-                                               itemValue="#{p.idProduto}" 
+                                               itemValue="#{p}" 
                                                itemLabel="#{p.descricaoProduto}"/>
                             </p:selectOneMenu>
+
                             <h:outputLabel value="Sector de Destino:" for="sector"/>
-                            <p:selectOneMenu id="Sector"
+                            <p:selectOneMenu id="sector"
                                              value="#{saidaArmazemBean.saida.idSector}"
                                              required="true"
-                                             converter="omnifaces.SelectItemsConverter" requiredMessage="Informe o Sector">
-                                <f:selectItem itemLabel="Selecione o Sector" />
-                                <f:selectItems value="#{sectorBean.listaSectores}"  var="s"  itemValue="#{s.idSector}" itemLabel="#{s.descricaoSector}"/>
+                                             converter="omnifaces.SelectItemsConverter" 
+                                             requiredMessage="Informe o Sector">
+                                <f:selectItem itemLabel="Selecione o Sector" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItems value="#{sectorBean.listaSectores}" 
+                                               var="s" 
+                                               itemValue="#{s}" 
+                                               itemLabel="#{s.descricaoSector}"/>
                             </p:selectOneMenu>
 
                             <h:outputLabel value="Quantidade a Sair:" for="qtd"/>

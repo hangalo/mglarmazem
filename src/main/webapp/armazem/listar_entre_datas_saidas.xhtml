@@ -1,0 +1,130 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_administracao.xhtml">
+
+            
+
+            <ui:define name="content">
+         <p:messages id="msgs" closable="true"/>
+
+                <h:form id="frmDatas">
+
+                    <p:panel header="Pesquisa de Saídas entre Datas" style="max-width:700px; margin:auto 0 20px 0;">
+                        <h:panelGrid id="gridFiltros" columns="4" cellpadding="10" style="width:100%;">
+
+                            <h:outputLabel value="Data Início:" for="dtInicio"/>
+                            <p:datePicker id="dtInicio"
+                                          value="#{saidaArmazemBean.dataInicio}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data início"
+                                          maxdate="#{saidaArmazemBean.hoje}"/>
+
+                            <h:outputLabel value="Data Fim:" for="dtFim"/>
+                            <p:datePicker id="dtFim"
+                                          value="#{saidaArmazemBean.dataFim}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data fim"
+                                          maxdate="#{saidaArmazemBean.hoje}"/>
+
+                        </h:panelGrid>
+
+                        <p:separator/>
+
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <p:commandButton value="Pesquisar"
+                                             action="#{saidaArmazemBean.pesquisarPorDatas}"
+                                             update="pnlResultados :msgs"
+                                             icon="pi pi-search"
+                                             styleClass="ui-button-info"/>
+
+                            <p:commandButton value="Limpar"
+                                             action="#{saidaArmazemBean.limparFiltros}"
+                                             update="gridFiltros pnlResultados :msgs"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             process="@this"/>
+                        </div>
+                    </p:panel>
+
+                    <p:panel id="pnlResultados" header="Resultados das Saídas">
+
+                        <p:toolbar style="margin-bottom:10px;">
+                            <p:toolbarGroup align="left">
+                                <h:outputText value="Total de registos: "
+                                              style="font-weight:bold; margin-right:5px;"/>
+                                <h:outputText value="#{saidaArmazemBean.listaSaidas.size()}"/>
+                            </p:toolbarGroup>
+                            
+                            <p:toolbarGroup align="right">
+                                <h:outputText value="Valor total das saídas: "
+                                              style="font-weight:bold; margin-right:5px;"/>
+                                <h:outputText value="#{saidaArmazemBean.totalPrecoSaida}">
+                                    <f:convertNumber pattern="#,##0.00"
+                                                     currencySymbol="Kz "
+                                                     type="currency"/>
+                                </h:outputText>
+                            </p:toolbarGroup>
+                        </p:toolbar>
+
+                        <p:dataTable id="tblDatas"
+                                     value="#{saidaArmazemBean.listaSaidas}"
+                                     var="s"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="#{saidaArmazemBean.listaSaidas.size() gt 10}"
+                                     emptyMessage="Nenhum registo de saída encontrado no período."
+                                     styleClass="ui-datatable-striped"
+                                     sortMode="multiple"
+                                     style="width:100%;">
+
+                            <p:column headerText="Código do Produto" sortBy="#{s.idProduto}">
+                                <h:outputText value="#{s.idProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Descrição do Produto" sortBy="#{s.produto.descricaoProduto}">
+                                <h:outputText value="#{s.produto.descricaoProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Preço (Kz)" sortBy="#{s.precoSaida}">
+                                <h:outputText value="#{s.precoSaida}">
+                                    <f:convertNumber pattern="#,##0.00" currencySymbol="Kz " type="currency"/>
+                                </h:outputText>
+                            </p:column>
+
+                            <p:column headerText="Qtd" sortBy="#{s.quantidadeSaidaArmazem}" style="width:80px; text-align:center;">
+                                <h:outputText value="#{s.quantidadeSaidaArmazem}"/>
+                            </p:column>
+
+                            <p:column headerText="Sector" sortBy="#{s.idSector}" style="text-align:center;">
+                                <h:outputText value="Sector #{s.idSector}"/> 
+                            </p:column>
+
+                            <p:column headerText="Data Registo Saída" sortBy="#{s.dataSaidaArmazem}" style="text-align:center;">
+                                <h:outputText value="#{s.dataSaidaArmazem}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm"/>
+                                </h:outputText>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+
+                </h:form>
+            </ui:define>
+
+        </ui:composition>
+
+    </body>
+</html>

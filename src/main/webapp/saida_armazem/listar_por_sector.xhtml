@@ -1,0 +1,95 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+    <body>
+        <ui:composition template="./../WEB-INF/templates/template_saida_armazem.xhtml">
+            <ui:define name="content">
+                <p:messages id="msgs" closable="true"/>
+                <h:form id="frmSector">
+                    <p:panel header="Relatório de Consumo por Sector" style="max-width:800px; margin:auto 0 20px 0;">
+                        <h:panelGrid columns="4" cellpadding="10" style="width:100%;">
+
+                            <h:outputLabel value="Sector:" for="cbSector"/>
+                            <p:selectOneMenu id="cbSector"
+                                             value="#{saidaArmazemBean.idSector}"
+                                             required="true"
+                                             requiredMessage="Seleccione o sector">
+                                <f:selectItem itemLabel="-- Seleccione --" itemValue="0" noSelectionOption="true"/>
+                                <f:selectItems value="#{saidaArmazemBean.listaSectores}"
+                                               var="sec"
+                                               itemValue="#{sec.idSector}"
+                                               itemLabel="#{sec.descricaoSector}"/>
+                            </p:selectOneMenu>
+
+                            <h:outputLabel value="Data Início:" for="dtInicio"/>
+                            <p:datePicker id="dtInicio"
+                                          value="#{saidaArmazemBean.dataInicio}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data início"
+                                          maxdate="#{saidaArmazemBean.hoje}"/>
+
+                            <h:outputLabel value="Data Fim:" for="dtFim"/>
+                            <p:datePicker id="dtFim"
+                                          value="#{saidaArmazemBean.dataFim}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data fim"
+                                          maxdate="#{saidaArmazemBean.hoje}"/>
+
+                        </h:panelGrid>
+
+                        <p:separator/>
+
+                        <div style="margin-top:10px; display:flex; gap:10px;">
+                            <p:commandButton value="Pesquisar"
+                                             action="#{saidaArmazemBean.pesquisarPorSector}"
+                                             update="tblSector :msgs"
+                                             process="@form"
+                                             icon="pi pi-search"
+                                             styleClass="ui-button-success"/>
+
+                            <p:commandButton value="Limpar Filtros"
+                                             action="#{saidaArmazemBean.limparFiltros}"
+                                             update="frmSector :msgs"
+                                             icon="pi pi-times"
+                                             styleClass="ui-button-secondary"
+                                             immediate="true"/>
+                        </div>
+                    </p:panel>
+
+                    <p:panel>
+                        <p:dataTable id="tblSector"
+                                     value="#{saidaArmazemBean.listaSaidasPorSector}"
+                                     var="s"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="#{saidaArmazemBean.listaSaidasPorSector.size() gt 10}"
+                                     emptyMessage="Nenhum registo encontrado para este sector e período."
+                                     styleClass="ui-datatable-striped"
+                                     style="width:100%;">
+
+                            <p:column headerText="Sector" sortBy="#{s.sector.descricaoSector}">
+                                <h:outputText value="#{s.sector.descricaoSector}"/>
+                            </p:column>
+                            <p:column headerText="Produto" sortBy="#{s.entradaArmazem.produto.descricaoProduto}">
+                                <h:outputText value="#{s.entradaArmazem.produto.descricaoProduto}"/>
+                            </p:column>
+                            <p:column headerText="Qtd. Existente" style="width:150px; text-align:center;">
+                                <h:outputText value="#{s.entradaArmazem.produto.quantidadeExistente}" style="font-weight:bold;"/>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

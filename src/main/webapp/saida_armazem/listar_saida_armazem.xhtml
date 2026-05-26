@@ -40,11 +40,6 @@
                                 <h:outputText value="#{s.quantidadeSaidaArmazem}" style="font-weight:bold; color:#c0392b;"/>
                             </p:column>
 
-                            <p:column headerText="Valor Total" style="width:150px; text-align:right; padding-right:10px;">
-                                <h:outputText value="#{saidaArmazemBean.calcularValorTotal(s)}">
-                                    <f:convertNumber type="currency" currencySymbol="Kz " maxFractionDigits="2" minFractionDigits="2"/>
-                                </h:outputText>
-                            </p:column>
 
                             <p:column headerText="Data" style="width:140px; text-align:center;">
                                 <h:outputText value="#{s.dataSaidaArmazem}">

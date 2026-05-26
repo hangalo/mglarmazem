@@ -70,7 +70,7 @@ public class EntradaArmazemBean implements Serializable {
             produtoDAO.updateAumentarQuantidade(armazem.getQuantidadeProduto(), armazem.getProduto().getIdProduto());
             armazem = new EntradaArmazem();
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
-            return "entrada_armazem?faces-redirect=true";
+            return "/entrada_armazem/registar_entrada?faces-redirect=true";
         } else {
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
             return null;

@@ -7,7 +7,6 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -34,7 +33,7 @@ public class SaidaArmazemBean implements Serializable {
     private List<SaidaArmazem> listaSaidas; 
     private List<EntradaArmazem> listaSaidasPorProduto; 
     
-    private Integer idSector; 
+    private Sector idSector; 
     private List<Sector> listaSectores; 
     private List<SaidaArmazem> listaSaidasPorSector; 
 
@@ -90,15 +89,15 @@ public class SaidaArmazemBean implements Serializable {
     }
 
     public void pesquisarPorSector() {
-        if (idSector == null || idSector == 0 || dataInicio == null || dataFim == null) {
+        if (idSector == null || idSector.getIdSector() == null || idSector.getIdSector() == 0 || dataInicio == null || dataFim == null) {
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o sector e o intervalo de datas corretamente.");
             return;
         }
 
         try {
-            this.listaSaidasPorSector = dao.listarPorSector(idSector, dataInicio, dataFim);
+            this.listaSaidasPorSector = dao.listarPorSector(idSector.getIdSector(), dataInicio, dataFim);
             if (this.listaSaidasPorSector == null || this.listaSaidasPorSector.isEmpty()) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Informação", "Nenhum registo encontrado para os filtros aplicados.");
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Nenhum registo encontrado nesta data ", "Nenhum registo encontrado .");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Erro ao pesquisar saídas por setor", e);
@@ -122,8 +121,6 @@ public class SaidaArmazemBean implements Serializable {
     public String registrar() {
         try {
             if (dao.registrarSaida(saida)) {
-                
-
                 int qtdeSaida = saida.getQuantidadeSaidaArmazem();
                 int idProd = saida.getIdProduto().getIdProduto(); 
                 
@@ -132,7 +129,7 @@ public class SaidaArmazemBean implements Serializable {
                 FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
                 adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso!");
                 limpar(); 
-                return "saida_armazem?faces-redirect=true";        
+                return "/saida_armazem/registar_saida?faces-redirect=true";        
             } else {
                 adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados no sistema.");
                 return null;
@@ -157,8 +154,8 @@ public class SaidaArmazemBean implements Serializable {
     public List<EntradaArmazem> getListaSaidasPorProduto() { return listaSaidasPorProduto; }
     public void setListaSaidasPorProduto(List<EntradaArmazem> listaSaidasPorProduto) { this.listaSaidasPorProduto = listaSaidasPorProduto; }
 
-    public Integer getIdSector() { return idSector; }
-    public void setIdSector(Integer idSector) { this.idSector = idSector; }
+    public Sector getIdSector() { return idSector; }
+    public void setIdSector(Sector idSector) { this.idSector = idSector; }
 
     public List<Sector> getListaSectores() { return listaSectores; }
     public void setListaSectores(List<Sector> listaSectores) { this.listaSectores = listaSectores; }

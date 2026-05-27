@@ -28,7 +28,7 @@ public class ProdutoBean implements Serializable {
     @PostConstruct
     public void init() {
         novo();
-        listar();
+         listaProdutos = dao.listarTudo();
        
     }
 
@@ -62,7 +62,7 @@ public class ProdutoBean implements Serializable {
 
     
     public void listar() {
-        listaProdutos = dao.listarTudo();
+       
     }
 
     

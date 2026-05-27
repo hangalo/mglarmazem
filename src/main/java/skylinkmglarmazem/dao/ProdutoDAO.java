@@ -16,7 +16,7 @@ public class ProdutoDAO {
     private static final String UPDATE = "UPDATE produto SET descricao_produto = ?, quantidade_existente = ?, id_categoria = ? WHERE id_produto = ?";
     private static final String DELETE = "DELETE FROM produto WHERE id_produto = ?";
     private static final String BUSCAR_POR_CODIGO = "SELECT * FROM produto WHERE id_produto = ?";
-    private static final String LISTAR_TUDO = "SELECT id_produto, descricao_produto, quantidade_existente, c.id_categoria, descricao_categoria FROM produto p INNER JOIN categoria_produto c ON p.id_categoria=c.id_categoria";
+    private static final String LISTAR_TUDO = "SELECT id_produto, descricao_produto, quantidade_existente,  descricao_categoria FROM produto p INNER JOIN categoria_produto c ON p.id_categoria=c.id_categoria";
     private static final String LISTAR_POR_CATEGORIA = "SELECT id_produto, descricao_produto, quantidade_existente, c.id_categoria, descricao_categoria FROM produto p INNER JOIN categoria_produto c ON p.id_categoria=c.id_categoria WHERE c.id_categoria = ? ORDER BY descricao_produto";
 
     private static final String ATUALIZAR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente + ? WHERE id_produto = ?";
@@ -221,7 +221,6 @@ public class ProdutoDAO {
        
         CategoriaProduto categoriaProduto = new CategoriaProduto();
         categoriaProduto.setDescricaoCategoria(rs.getString("descricao_categoria"));
-        categoriaProduto.setIdCategoria(rs.getInt("id_categoria"));
         p.setCategoriaProduto(categoriaProduto);
         return p;
     }

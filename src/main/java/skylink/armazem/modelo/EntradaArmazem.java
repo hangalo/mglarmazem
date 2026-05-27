@@ -17,7 +17,6 @@ public class EntradaArmazem {
     private Date dataCompra;
     private Integer quantidadeProduto;
     private Produto produto;
-    private Integer idSector;
     private Sector sector;
 
     private BigDecimal totalValorRelatorio;
@@ -108,13 +107,7 @@ public class EntradaArmazem {
         this.totalValorRelatorio = totalValorRelatorio;
     }
 
-    public Integer getIdSector() {
-        return idSector;
-    }
-
-    public void setIdSector(Integer idSector) {
-        this.idSector = idSector;
-    }
+    
 
     @Override
     public int hashCode() {
@@ -123,7 +116,7 @@ public class EntradaArmazem {
         hash = 89 * hash + Objects.hashCode(this.dataCompra);
         hash = 89 * hash + Objects.hashCode(this.quantidadeProduto);
         hash = 89 * hash + Objects.hashCode(this.produto);
-        hash = 89 * hash + Objects.hashCode(this.idSector);
+        hash = 89 * hash + Objects.hashCode(this.sector);
         return hash;
     }
 
@@ -145,12 +138,12 @@ public class EntradaArmazem {
         if (!Objects.equals(this.quantidadeProduto, other.quantidadeProduto)) {
             return false;
         }
-        return Objects.equals(this.idSector, other.idSector);
+        return Objects.equals(this.sector, other.sector);
     }
 
     @Override
     public String toString() {
-        return "EntradaArmazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", produto=" + produto + ", idSector=" + idSector + ", totalValorRelatorio=" + totalValorRelatorio + '}';
+        return "EntradaArmazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", produto=" + produto + ", idSector=" + sector + ", totalValorRelatorio=" + totalValorRelatorio + '}';
     }
 
 }

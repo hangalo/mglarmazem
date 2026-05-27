@@ -17,10 +17,14 @@
                         <h:panelGrid columns="7" cellpadding="5">
 
                             <p:outputLabel for="sector" value="Sector:" />
-                            <p:selectOneMenu id="sector" value="#{estoqueBean.idSector}" required="true" requiredMessage="Selecione um setor">
-                                <f:selectItem itemLabel="Seleccione o Sector" itemValue="" />
+                            <p:selectOneMenu id="sector" value="#{estoqueBean.idSector}" 
+                                             converter="omnifaces.SelectItemsConverter" 
+                                             required="true" requiredMessage="Selecione um setor">
+
+                                <f:selectItem itemLabel="Seleccione o Sector" itemValue="#{null}" />
+
                                 <f:selectItems value="#{estoqueBean.listaSectores}" var="sec" 
-                                               itemLabel="#{sec.descricaoSector}" itemValue="#{sec.idSector}" />
+                                               itemLabel="#{sec.descricaoSector}" itemValue="#{sec}" />
                             </p:selectOneMenu>
 
                             <p:outputLabel for="dataIni" value="Data Início:" />

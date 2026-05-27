@@ -115,7 +115,7 @@ public class ProdutoDAO {
         return lista;
     }
     
-    public boolean updateAumentarQuantidade( Integer quantidade,Integer idProduto) {
+    public boolean updateAumentarQuantidade(Integer quantidade, Integer idProduto) {
         boolean bl;
         PreparedStatement ps = null;
         Connection conn = null;
@@ -153,45 +153,44 @@ public class ProdutoDAO {
     }
     
     public boolean updateDiminuirQuantidade(Integer quantidade, Integer idProduto) {
-    boolean bl;
-    PreparedStatement ps = null;
-    Connection conn = null;
-    boolean flagControlo = false;
-    try {
-        System.out.println("Quantidade a diminuir >>>>>>>>>>" + quantidade);
-        conn = ConnectionDB.getConnection();
-        conn.setAutoCommit(false);
-        
-       
-        ps = conn.prepareStatement(DIMINUIR_ESTOQUE_PRODUTO); 
-        
-        ps.setInt(1, quantidade);
-        ps.setInt(2, idProduto);
-        int retorno = ps.executeUpdate();
-        conn.commit();
-        
-        if (retorno > 0) {
-            System.out.println("StockProdutoDAO:updateDiminuirQuantidade Dados quantidade diminuída com sucesso: " + ps.getUpdateCount());
-            flagControlo = true;
-        }
-        bl = flagControlo;
-    }
-    catch (SQLException e) {
-        boolean bl2;
+        boolean bl;
+        PreparedStatement ps = null;
+        Connection conn = null;
+        boolean flagControlo = false;
         try {
-            System.out.println("Erro ao diminuir dados no estoque: " + e.getMessage());
-            bl2 = false;
+            System.out.println("Quantidade a diminuir >>>>>>>>>>" + quantidade);
+            conn = ConnectionDB.getConnection();
+            conn.setAutoCommit(false);
+            
+            ps = conn.prepareStatement(DIMINUIR_ESTOQUE_PRODUTO); 
+            
+            ps.setInt(1, quantidade);
+            ps.setInt(2, idProduto);
+            int retorno = ps.executeUpdate();
+            conn.commit();
+            
+            if (retorno > 0) {
+                System.out.println("StockProdutoDAO:updateDiminuirQuantidade Dados quantidade diminuída com sucesso: " + ps.getUpdateCount());
+                flagControlo = true;
+            }
+            bl = flagControlo;
         }
-        catch (Throwable throwable) {
-            ConnectionDB.closeConnection(conn, ps);
-            throw throwable;
+        catch (SQLException e) {
+            boolean bl2;
+            try {
+                System.out.println("Erro ao diminuir dados no estoque: " + e.getMessage());
+                bl2 = false;
+            }
+            catch (Throwable throwable) {
+                ConnectionDB.closeConnection(conn, ps);
+                throw throwable;
+            }
+            ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
+            return bl2;
         }
         ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-        return bl2;
+        return bl;
     }
-    ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-    return bl;
-}
 
     public Produto buscarPorCodigo(int idProduto) {
         Connection conn = null;
@@ -220,12 +219,28 @@ public class ProdutoDAO {
         p.setDescricaoProduto(rs.getString("descricao_produto"));
         p.setQuantidadeExistente(rs.getInt("quantidade_existente"));
        
-        CategoriaProduto categoriaProduto=new CategoriaProduto();
+        CategoriaProduto categoriaProduto = new CategoriaProduto();
         categoriaProduto.setDescricaoCategoria(rs.getString("descricao_categoria"));
         categoriaProduto.setIdCategoria(rs.getInt("id_categoria"));
         p.setCategoriaProduto(categoriaProduto);
         return p;
     }
-
     
+    
+    public int buscarQuantidadeAtual(int idProduto) throws SQLException {
+        String sql = "SELECT quantidade_existente FROM produto WHERE id_produto = ?";
+        
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, idProduto);
+            
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("quantidade_existente"); 
+                }
+            }
+        }
+        return 0; 
+    }
 }

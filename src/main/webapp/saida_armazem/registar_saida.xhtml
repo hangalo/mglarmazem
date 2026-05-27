@@ -12,10 +12,10 @@
 
                     <p:growl id="msgs" showDetail="true" life="4000"/>
 
-                    <p:panel header="Registo de Saída de Armazém" style="max-width:680px; margin:auto 0 20px 0;">
+                    <p:panel header="Registo de Saída de Armazém" style="max-width:800px; margin:auto 0 20px 0;">
                         <h:panelGrid columns="2" cellpadding="10" style="width:100%;">
 
-                            <h:outputLabel value="Produto:" for="produto"/>
+                            <h:outputLabel value="Produto" style="font-size: 15px; font-weight: bold;"/>
                             <p:selectOneMenu id="produto"
                                              value="#{saidaArmazemBean.saida.idProduto}"
                                              required="true"
@@ -28,7 +28,7 @@
                                                itemLabel="#{p.descricaoProduto}"/>
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Sector de Destino:" for="sector"/>
+                            <h:outputLabel value="Sector de Destino " style="font-size: 15px; font-weight: bold;"/>
                             <p:selectOneMenu id="sector"
                                              value="#{saidaArmazemBean.saida.idSector}"
                                              required="true"
@@ -41,7 +41,7 @@
                                                itemLabel="#{s.descricaoSector}"/>
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Quantidade a Sair:" for="qtd"/>
+                            <p:outputLabel value="Quantidade" style="font-size: 15px; font-weight: bold;" />
                             <p:inputText id="qtd"
                                          value="#{saidaArmazemBean.saida.quantidadeSaidaArmazem}"
                                          required="true"
@@ -49,18 +49,13 @@
                                 <f:convertNumber integerOnly="true"/>
                             </p:inputText>
 
-
-
                         </h:panelGrid>
 
                         <p:separator/>
 
                         <p:commandButton value="Registar Saída"
-                                         action="#{saidaArmazemBean.registrar}"
-                                         update="frmSaida"
-                                         icon="pi pi-check"
-                                         styleClass="ui-button-success"
-                                         style="margin-right:10px;" />
+                                         action="#{saidaArmazemBean.registrar()}"
+                                         update="msgs" />
 
                         <p:commandButton value="Limpar"
                                          action="#{saidaArmazemBean.limpar}"

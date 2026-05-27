@@ -9,7 +9,6 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import skylink.armazem.modelo.Produto;
 import skylink.armazem.modelo.SaidaArmazem;
@@ -48,8 +47,13 @@ public class SaidaArmazemBean implements Serializable {
     @PostConstruct
     public void init() {
         limpar();
-        carregarHistorico();
-        carregarSectores(); 
+        
+        try {
+            carregarHistorico();
+            carregarSectores(); 
+        } catch (Exception e) {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro crítico", "Falha na inicialização dos dados.");
+        }
     }
 
     public void limpar() {
@@ -70,73 +74,69 @@ public class SaidaArmazemBean implements Serializable {
         }
     }
     
-    private void carregarSectores() {
-        try {
-            this.listaSectores = sectorDAO.listarTudo();
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao buscar setores no banco de dados", e);
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível carregar a lista de setores.");
-        }
+    private void carregarSectores() throws Exception {
+        this.listaSectores = sectorDAO.listarTudo();
     }
     
-    public void carregarHistorico() {
-        try {
-            this.listaSaidas = dao.listarTudo();
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao carregar histórico de saídas", e);
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível carregar o histórico.");
-        }
+    public void carregarHistorico() throws SQLException {
+        this.listaSaidas = dao.listarTudo();
     }
 
-    public void pesquisarPorSector() {
+    public void pesquisarPorSector() throws SQLException {
         if (idSector == null || idSector.getIdSector() == null || idSector.getIdSector() == 0 || dataInicio == null || dataFim == null) {
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o sector e o intervalo de datas corretamente.");
             return;
         }
 
-        try {
-            this.listaSaidasPorSector = dao.listarPorSector(idSector.getIdSector(), dataInicio, dataFim);
-            if (this.listaSaidasPorSector == null || this.listaSaidasPorSector.isEmpty()) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Nenhum registo encontrado nesta data ", "Nenhum registo encontrado .");
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao pesquisar saídas por setor", e);
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao buscar dados do setor especificado.");
+        this.listaSaidasPorSector = dao.listarPorSector(idSector.getIdSector(), dataInicio, dataFim);
+        
+        if (this.listaSaidasPorSector == null || this.listaSaidasPorSector.isEmpty()) {
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Nenhum registo encontrado nesta data ", "Nenhum registo encontrado .");
         }
     }
 
-    public void pesquisarSaidasProduto() {
+    public void pesquisarSaidasProduto() throws SQLException {
         if (dataInicio == null || dataFim == null) {
             adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o intervalo de datas.");
             return;
         }
-        try {
-            this.listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao pesquisar saídas por produto", e);
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao processar a pesquisa no banco.");
-        }
+        this.listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
     }
 
-    public String registrar() {
-        try {
-            if (dao.registrarSaida(saida)) {
-                int qtdeSaida = saida.getQuantidadeSaidaArmazem();
-                int idProd = saida.getIdProduto().getIdProduto(); 
-                
-                produtoDAO.updateDiminuirQuantidade(qtdeSaida, idProd);
-                
-                FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso!");
-                limpar(); 
-                return "/saida_armazem/registar_saida?faces-redirect=true";        
-            } else {
-                adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados no sistema.");
-                return null;
-            }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro catastrófico ao registrar saída no banco de dados", e);
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Falha de comunicação com o banco de dados.");
+    public String registrar() throws SQLException {
+        
+        int qtdeSaida = saida.getQuantidadeSaidaArmazem();
+        
+        if (saida.getIdProduto() == null || saida.getIdProduto().getIdProduto() == null) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione um produto válido para realizar a saída.");
+            return null;
+        }
+        int idProd = saida.getIdProduto().getIdProduto(); 
+
+        if (qtdeSaida <= 0) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "A quantidade de saída deve ser maior que zero.");
+            return null;
+        }
+
+        int quantidadeDisponivel = produtoDAO.buscarQuantidadeAtual(idProd); 
+
+        if (qtdeSaida > quantidadeDisponivel) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Estoque Insuficiente!", 
+                "Não é possível realizar a saída. Solicitado: " + qtdeSaida + 
+                " unidades | Disponível em Estoque: " + quantidadeDisponivel + " unidades.");
+            return null; 
+        }
+
+        if (dao.registrarSaida(saida)) {
+            
+            produtoDAO.updateDiminuirQuantidade(qtdeSaida, idProd);
+            
+            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso!");
+            limpar(); 
+            return "/saida_armazem/registar_saida?faces-redirect=true";        
+        } else {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados no sistema.");
             return null;
         }
     }

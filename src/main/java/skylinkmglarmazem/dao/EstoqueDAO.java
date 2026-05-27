@@ -12,12 +12,12 @@ import skylink.armazem.modelo.Sector;
 import skylink.mglarmazem.bdutil.ConnectionDB;
 
 /**
- *
- * @Henriques
+ * @author Henriques
  */
 public class EstoqueDAO {
 
-    private static final String CONTROLE_ESTOQUE = "SELECT sec.descricao_sector, p.descricao_produto, p.quantidade_existente, SUM(s.quantidade_saida_armazem) AS total_saida, sum(e.quantidade_produto) AS total_entrada FROM produto p INNER JOIN saida_armazem s ON s.id_produto = p.id_produto inner join entrada_armazem e ON p.id_produto=e.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector where sec.id_sector=? AND s.data_saida_armazem between ? and ? GROUP BY sec.descricao_sector, p.descricao_produto, p.quantidade_existente";
+    // QUERY DEFINITIVA: Filtra o setor dentro da subconsulta de saídas e faz CROSS JOIN com setores
+    private static final String CONTROLE_ESTOQUE = "SELECT sec.descricao_sector, p.descricao_produto, p.quantidade_existente, COALESCE(ent.total_entrada, 0) AS total_entrada, COALESCE(sai.total_saida, 0) AS total_saida FROM produto p LEFT JOIN (SELECT id_produto, SUM(quantidade_saida_armazem) AS total_saida FROM saida_armazem WHERE id_sector = ? AND data_saida_armazem BETWEEN ? AND ? GROUP BY id_produto) sai ON p.id_produto = sai.id_produto LEFT JOIN (SELECT id_produto, SUM(quantidade_produto) AS total_entrada FROM entrada_armazem WHERE data_registo BETWEEN ? AND ? GROUP BY id_produto) ent ON p.id_produto = ent.id_produto CROSS JOIN sector sec WHERE sec.id_sector = ?";
 
     public List<Estoque> obterControleEstoquePorSetor(int idSector, java.util.Date dataInicio, java.util.Date dataFim) throws SQLException {
         List<Estoque> lista = new ArrayList<>();
@@ -25,9 +25,19 @@ public class EstoqueDAO {
         try (Connection conn = ConnectionDB.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(CONTROLE_ESTOQUE)) {
 
+            // 1º ? -> ID do Setor (Filtro interno de Saídas)
             ps.setInt(1, idSector);
+
+            // 2º e 3º ? -> Período da tabela de Saídas (sai)
             ps.setTimestamp(2, new java.sql.Timestamp(dataInicio.getTime()));
             ps.setTimestamp(3, new java.sql.Timestamp(dataFim.getTime()));
+
+            // 4º e 5º ? -> Período da tabela de Entradas (ent)
+            ps.setTimestamp(4, new java.sql.Timestamp(dataInicio.getTime()));
+            ps.setTimestamp(5, new java.sql.Timestamp(dataFim.getTime()));
+
+            // 6º ? -> ID do Setor no WHERE final (sec.id_sector = ?)
+            ps.setInt(6, idSector);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

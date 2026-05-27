@@ -76,7 +76,7 @@ public class EstoqueBean implements Serializable {
             this.listaEstoqueFiltrado = estoqueDAO.obterControleEstoquePorSetor(idSector.getIdSector(), dataInicio, dataFim);
 
             if (this.listaEstoqueFiltrado == null || this.listaEstoqueFiltrado.isEmpty()) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Informação", "Nenhum registro de estoque encontrado para os filtros aplicados.");
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Informação", "Nenhum registro de estoque encontrado");
             }
         } catch (SQLException e) {
             LOGGER.log(Level.SEVERE, "Erro ao pesquisar controle de estoque", e);

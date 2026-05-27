@@ -13,13 +13,13 @@
                 <h:form id="formEstoque">
                     <p:growl id="msges" showDetail="true" skipDetailIfEqualsSummary="true" />
 
-                    <p:panel header="Filtro de Análise de Estoque" style="margin-bottom:20px">
+                    <p:panel header=" Análise de Estoque" style="margin-bottom:20px">
                         <h:panelGrid columns="7" cellpadding="5">
 
-                            <p:outputLabel for="sector" value="Sector:" />
+                            <p:outputLabel for="sector" value="Sector" style="font-size: 18px; font-weight: bold;" />
                             <p:selectOneMenu id="sector" value="#{estoqueBean.idSector}" 
                                              converter="omnifaces.SelectItemsConverter" 
-                                             required="true" requiredMessage="Selecione um setor">
+                                             requiredMessage="Selecione um setor">
 
                                 <f:selectItem itemLabel="Seleccione o Sector" itemValue="#{null}" />
 
@@ -28,10 +28,10 @@
                             </p:selectOneMenu>
 
                             <p:outputLabel for="dataIni" value="Data Início:" />
-                            <p:datePicker id="dataIni" value="#{estoqueBean.dataInicio}" pattern="yyyy-MM-dd" showIcon="true" required="true" />
+                            <p:datePicker id="dataIni" value="#{estoqueBean.dataInicio}" pattern="yyyy-MM-dd HH:mm:ss" showIcon="true" required="true" />
 
                             <p:outputLabel for="dataFim" value="Data Fim:" />
-                            <p:datePicker id="dataFim" value="#{estoqueBean.dataFim}" pattern="yyyy-MM-dd" showIcon="true" required="true" />
+                            <p:datePicker id="dataFim" value="#{estoqueBean.dataFim}" pattern="yyyy-MM-dd HH:mm:ss" showIcon="true" required="true" />
 
                             <h:panelGroup>
                                 <p:commandButton value="Pesquisar" action="#{estoqueBean.pesquisarEstoque()}" 
@@ -50,7 +50,7 @@
                                  stripedRows="true" showGridlines="true">
 
                         <f:facet name="header">
-                            Estoque Atual vs. Movimentações do Período
+                            <h2>  Movimentações do Período vs.  Estoque Atual </h2>
                         </f:facet>
 
                         <p:column headerText="Sector" sortBy="#{est.descricaoSector.descricaoSector}">

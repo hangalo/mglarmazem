@@ -28,23 +28,24 @@
 
                             <h:outputLabel value="Sector de Destino:" for="Sector"/>
                             <p:selectOneMenu id="Sector"
-                                             value="#{entradaArmazemBean.armazem.idSector}"
+                                             value="#{entradaArmazemBean.armazem.sector}"
                                              required="true"
+                                             converter="omnifaces.SelectItemsConverter"
                                              requiredMessage="Informe o Sector">
                                 <f:selectItem itemLabel="Selecione o Sector" />
                                 <f:selectItems value="#{sectorBean.listaSectores}"  
                                                var="s"  
-                                               itemValue="#{s.idSector}" 
+                                               itemValue="#{s}" 
                                                itemLabel="#{s.descricaoSector}"/>
                             </p:selectOneMenu>
-
                             <h:outputLabel value="Preço de Compra (Kz)" for="preco"/>
-                            <p:inputText id="preco"
-                                         value="#{entradaArmazemBean.armazem.precoProduto}"
-                                         required="true"
-                                         requiredMessage="Informe o preço da Compra">
-                                <f:convertNumber minFractionDigits="2" maxFractionDigits="2"/>
-                            </p:inputText>
+                            <p:inputNumber id="preco"
+                                           value="#{entradaArmazemBean.armazem.precoProduto}"
+                                           required="true"
+                                           requiredMessage="Informe o preço da Compra"
+                                           thousandSeparator=" "
+                                           decimalSeparator="."
+                                           decimalPlaces="2"/>
 
                             <h:outputLabel value="Quantidade Comprada" for="qtd"/>
                             <p:inputText id="qtd"

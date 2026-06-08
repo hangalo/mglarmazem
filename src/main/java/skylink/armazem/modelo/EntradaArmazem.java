@@ -32,14 +32,18 @@ public class EntradaArmazem {
         this.produto.setDescricaoProduto(descricaoProd);
     }
 
-    public EntradaArmazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Produto produto) {
+    public EntradaArmazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Produto produto, Sector sector, BigDecimal totalValorRelatorio) {
         this.idArmazem = idArmazem;
         this.dataRegisto = dataRegisto;
         this.precoProduto = precoProduto;
         this.dataCompra = dataCompra;
         this.quantidadeProduto = quantidadeProduto;
         this.produto = produto;
+        this.sector = sector;
+        this.totalValorRelatorio = totalValorRelatorio;
     }
+
+   
 
     public Integer getIdArmazem() {
         return idArmazem;
@@ -90,9 +94,11 @@ public class EntradaArmazem {
     }
 
     public void setSector(Sector sector) {
-        setSector(sector);
+        this.sector = sector;
     }
 
+ 
+   
     
 
     public void setProduto(Produto produto) {

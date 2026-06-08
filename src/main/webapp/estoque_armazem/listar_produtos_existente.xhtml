@@ -23,18 +23,18 @@
                                      paginator="true" rows="10" stripedRows="true" style="margin-top:20px;"
                                      emptyMessage="Nenhum produto encontrado.">
 
-                            <p:column headerText="Código do Produto" width="180" style="text-align: center;">
+                            <p:column headerText="Código do Produto" width="140" style="text-align: center;">
                                 <h:outputText value="#{p.idProduto}" />
                             </p:column>
 
-                            <p:column headerText="Descrição"  width="300" style="text-align: center;">
+                            <p:column headerText="Descrição"  width="150" style="text-align: center;">
                                 <h:outputText value="#{p.descricaoProduto}" />
                             </p:column>
-                            <p:column headerText="Qde Existente"  width="300" style="text-align: center;">
+                            <p:column headerText="Qde Existente"  width="120" style="text-align: center;">
                                 <h:outputText value="#{p.quantidadeExistente}" />
                             </p:column>
 
-                            <p:column headerText="Categoria" style="text-align: center;">
+                            <p:column headerText="Categoria" width="180" style="text-align: center;">
                                 <h:outputText value="#{p.categoriaProduto.descricaoCategoria}" />
                             </p:column>
 

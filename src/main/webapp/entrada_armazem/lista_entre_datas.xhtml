@@ -86,15 +86,14 @@
                                      styleClass="ui-datatable-striped"
                                      sortMode="multiple"
                                      style="width:100%;">
+                            
                             <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}">
                                 <h:outputText value="#{a.produto.descricaoProduto}"/>
                             </p:column>
 
-
                             <p:column headerText="Sector" sortBy="#{a.sector.descricaoSector}">
                                 <h:outputText value="#{a.sector.descricaoSector}"/>
                             </p:column>
-
 
                             <p:column headerText="Preço (Kz)" sortBy="#{a.precoProduto}">
                                 <h:outputText value="#{a.precoProduto}">
@@ -104,6 +103,10 @@
 
                             <p:column headerText="Qtd" sortBy="#{a.quantidadeProduto}" style="width:80px; text-align:center;">
                                 <h:outputText value="#{a.quantidadeProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="U.M." sortBy="#{a.unidadeMedida}" style="width:80px; text-align:center;">
+                                <h:outputText value="#{a.unidadeMedida}"/>
                             </p:column>
 
                             <p:column headerText="Data Compra" sortBy="#{a.dataCompra}" style="text-align:center;">

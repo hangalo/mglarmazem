@@ -16,6 +16,7 @@ public class EntradaArmazem {
     private Double precoProduto;
     private Date dataCompra;
     private Integer quantidadeProduto;
+    private String unidadeMedida;
     private Produto produto;
     private Sector sector;
 
@@ -32,13 +33,16 @@ public class EntradaArmazem {
         this.produto.setDescricaoProduto(descricaoProd);
     }
 
-    public EntradaArmazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, Produto produto) {
+    public EntradaArmazem(Integer idArmazem, Date dataRegisto, Double precoProduto, Date dataCompra, Integer quantidadeProduto, String unidadeMedida, Produto produto, Sector sector, BigDecimal totalValorRelatorio) {
         this.idArmazem = idArmazem;
         this.dataRegisto = dataRegisto;
         this.precoProduto = precoProduto;
         this.dataCompra = dataCompra;
         this.quantidadeProduto = quantidadeProduto;
+        this.unidadeMedida = unidadeMedida;
         this.produto = produto;
+        this.sector = sector;
+        this.totalValorRelatorio = totalValorRelatorio;
     }
 
     public Integer getIdArmazem() {
@@ -63,6 +67,14 @@ public class EntradaArmazem {
 
     public void setPrecoProduto(Double precoProduto) {
         this.precoProduto = precoProduto;
+    }
+
+    public String getUnidadeMedida() {
+        return unidadeMedida;
+    }
+
+    public void setUnidadeMedida(String unidadeMedida) {
+        this.unidadeMedida = unidadeMedida;
     }
 
     public Date getDataCompra() {
@@ -90,10 +102,8 @@ public class EntradaArmazem {
     }
 
     public void setSector(Sector sector) {
-        setSector(sector);
+        this.sector = sector;
     }
-
-    
 
     public void setProduto(Produto produto) {
         this.produto = produto;
@@ -107,16 +117,18 @@ public class EntradaArmazem {
         this.totalValorRelatorio = totalValorRelatorio;
     }
 
-    
-
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 89 * hash + Objects.hashCode(this.idArmazem);
-        hash = 89 * hash + Objects.hashCode(this.dataCompra);
-        hash = 89 * hash + Objects.hashCode(this.quantidadeProduto);
-        hash = 89 * hash + Objects.hashCode(this.produto);
-        hash = 89 * hash + Objects.hashCode(this.sector);
+        int hash = 3;
+        hash = 41 * hash + Objects.hashCode(this.idArmazem);
+        hash = 41 * hash + Objects.hashCode(this.dataRegisto);
+        hash = 41 * hash + Objects.hashCode(this.precoProduto);
+        hash = 41 * hash + Objects.hashCode(this.dataCompra);
+        hash = 41 * hash + Objects.hashCode(this.quantidadeProduto);
+        hash = 41 * hash + Objects.hashCode(this.unidadeMedida);
+        hash = 41 * hash + Objects.hashCode(this.produto);
+        hash = 41 * hash + Objects.hashCode(this.sector);
+        hash = 41 * hash + Objects.hashCode(this.totalValorRelatorio);
         return hash;
     }
 
@@ -132,18 +144,36 @@ public class EntradaArmazem {
             return false;
         }
         final EntradaArmazem other = (EntradaArmazem) obj;
+        if (!Objects.equals(this.unidadeMedida, other.unidadeMedida)) {
+            return false;
+        }
         if (!Objects.equals(this.idArmazem, other.idArmazem)) {
+            return false;
+        }
+        if (!Objects.equals(this.dataRegisto, other.dataRegisto)) {
+            return false;
+        }
+        if (!Objects.equals(this.precoProduto, other.precoProduto)) {
+            return false;
+        }
+        if (!Objects.equals(this.dataCompra, other.dataCompra)) {
             return false;
         }
         if (!Objects.equals(this.quantidadeProduto, other.quantidadeProduto)) {
             return false;
         }
-        return Objects.equals(this.sector, other.sector);
+        if (!Objects.equals(this.produto, other.produto)) {
+            return false;
+        }
+        if (!Objects.equals(this.sector, other.sector)) {
+            return false;
+        }
+        return Objects.equals(this.totalValorRelatorio, other.totalValorRelatorio);
     }
 
     @Override
     public String toString() {
-        return "EntradaArmazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", produto=" + produto + ", idSector=" + sector + ", totalValorRelatorio=" + totalValorRelatorio + '}';
+        return "EntradaArmazem{" + "idArmazem=" + idArmazem + ", dataRegisto=" + dataRegisto + ", precoProduto=" + precoProduto + ", dataCompra=" + dataCompra + ", quantidadeProduto=" + quantidadeProduto + ", unidadeMedida=" + unidadeMedida + ", produto=" + produto + ", sector=" + sector + ", totalValorRelatorio=" + totalValorRelatorio + '}';
     }
 
 }

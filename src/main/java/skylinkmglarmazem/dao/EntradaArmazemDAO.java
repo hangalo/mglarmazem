@@ -3,7 +3,6 @@ package skylinkmglarmazem.dao;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import skylink.mglarmazem.bdutil.ConnectionDB;
 import skylink.mglarmazem.modelo.EntradaArmazem;
@@ -16,8 +15,8 @@ public class EntradaArmazemDAO {
 
     private static final Logger LOGGER = Logger.getLogger(EntradaArmazemDAO.class.getName());
 
-    private static final String INSERT = "INSERT INTO entrada_armazem(preco_produto, data_compra, quantidade_produto, id_produto) VALUES (?, ?, ?, ?)";
-    private static final String UPDATE = "UPDATE entrada_armazem SET data_registo=?, preco_produto=?, data_compra=?, quantidade_produto=?, id_produto=? WHERE id_armazem=?";
+    private static final String INSERT = "INSERT INTO entrada_armazem(preco_produto, data_compra, quantidade_produto, unidade_medida, id_produto) VALUES (?, ?, ?, ?, ?)";
+    private static final String UPDATE = "UPDATE entrada_armazem SET data_registo=?, preco_produto=?, data_compra=?, quantidade_produto=?, unidade_medida=?, id_produto=? WHERE id_armazem=?";
     private static final String DELETE = "DELETE FROM entrada_armazem WHERE id_armazem=?";
 
     private static final String LISTAR = "SELECT a.*, p.id_produto as id_produto_prod, p.descricao_produto as descricao_prod FROM entrada_armazem a INNER JOIN produto p ON a.id_produto = p.id_produto ORDER BY a.data_registo DESC";
@@ -37,7 +36,7 @@ public class EntradaArmazemDAO {
         }
     }
 
-    public boolean salvar(EntradaArmazem entradaArmazem) {
+    public boolean salvar(EntradaArmazem entradaArmazem) throws SQLException {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -46,18 +45,16 @@ public class EntradaArmazemDAO {
             ps.setDouble(1, entradaArmazem.getPrecoProduto());
             ps.setDate(2, new java.sql.Date(entradaArmazem.getDataCompra().getTime()));
             ps.setInt(3, entradaArmazem.getQuantidadeProduto());
-            ps.setInt(4, entradaArmazem.getProduto().getIdProduto());
+            ps.setString(4, entradaArmazem.getUnidadeMedida());
+            ps.setInt(5, entradaArmazem.getProduto().getIdProduto());
 
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao inserir produto", e);
-            return false;
         } finally {
             ConnectionDB.closeConnection(conn, ps);
         }
     }
 
-    public List<EntradaArmazem> listarTudo() {
+    public List<EntradaArmazem> listarTudo() throws SQLException {
         List<EntradaArmazem> lista = new ArrayList<>();
         try (Connection conn = ConnectionDB.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(LISTAR); 
@@ -65,13 +62,11 @@ public class EntradaArmazemDAO {
             while (rs.next()) {
                 lista.add(map(rs));
             }
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Erro ao listar tudo", e);
         }
         return lista;
     }
 
-    public List<EntradaArmazem> pesquisarPorDatas(java.util.Date inicio, java.util.Date fim) {
+    public List<EntradaArmazem> pesquisarPorDatas(java.util.Date inicio, java.util.Date fim) throws SQLException {
         List<EntradaArmazem> lista = new ArrayList<>();
         try (Connection conn = ConnectionDB.getConnection(); 
              PreparedStatement ps = conn.prepareStatement(POR_DATAS)) {
@@ -82,8 +77,6 @@ public class EntradaArmazemDAO {
                     lista.add(map(rs));
                 }
             }
-        } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, "Erro ao pesquisar por datas", e);
         }
         return lista;
     }
@@ -99,7 +92,6 @@ public class EntradaArmazemDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-
                     lista.add(mapRelatorio(rs));
                 }
             }
@@ -113,6 +105,7 @@ public class EntradaArmazemDAO {
         entrada.setPrecoProduto(rs.getDouble("preco_produto")); 
         entrada.setDataCompra(rs.getDate("data_compra"));
         entrada.setQuantidadeProduto(rs.getInt("quantidade_produto"));
+        entrada.setUnidadeMedida(rs.getString("unidade_medida"));
         entrada.setDataRegisto(rs.getTimestamp("data_registo"));
 
         Produto produto = new Produto();

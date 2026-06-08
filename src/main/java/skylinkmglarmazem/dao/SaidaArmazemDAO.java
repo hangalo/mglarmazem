@@ -13,26 +13,27 @@ import skylink.armazem.modelo.Sector;
 import skylink.mglarmazem.modelo.EntradaArmazem;
 
 /**
- * @Henriques
+ * @author Henriques
  */
 public class SaidaArmazemDAO {
 
-    private static final String INSERT = "INSERT INTO saida_armazem (id_produto, id_sector, quantidade_saida_armazem, data_saida_armazem) VALUES (?, ?, ?, ?)";
+    private static final String INSERT = "INSERT INTO saida_armazem (id_produto, id_sector, quantidade_saida_armazem, data_saida_armazem, unidade_medida) VALUES (?, ?, ?, ?, ?)";
     
     private static final String LISTAR_POR_SECTOR = "SELECT sec.descricao_sector, p.descricao_produto, p.quantidade_existente, SUM(s.quantidade_saida_armazem) AS total_saida FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE sec.id_sector = ? AND s.data_saida_armazem BETWEEN ? AND ? GROUP BY sec.descricao_sector, p.descricao_produto, p.quantidade_existente";
     
     private static final String PESQUISAR_SAIDAS_PRODUTO = "SELECT p.descricao_produto AS descricao_prod, SUM(s.quantidade_saida_armazem) AS total_quantidade FROM produto p INNER JOIN saida_armazem s ON p.id_produto = s.id_produto WHERE s.data_saida_armazem BETWEEN ? AND ? GROUP BY p.descricao_produto";
 
-    private static final String LISTAR_TUDO = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.id_produto, p.descricao_produto, sec.descricao_sector, (SELECT e.preco_produto FROM entrada_armazem e WHERE e.id_produto = s.id_produto ORDER BY e.id_armazem DESC LIMIT 1) AS preco_produto FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector ORDER BY s.data_saida_armazem DESC";
+    private static final String LISTAR_TUDO = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.unidade_medida, s.id_produto, p.descricao_produto, sec.descricao_sector, (SELECT e.preco_produto FROM entrada_armazem e WHERE e.id_produto = s.id_produto ORDER BY e.id_armazem DESC LIMIT 1) AS preco_produto FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector ORDER BY s.data_saida_armazem DESC";
 
     public boolean registrarSaida(SaidaArmazem saida) throws SQLException {
         try (Connection conn = ConnectionDB.getConnection(); 
              PreparedStatement psInsert = conn.prepareStatement(INSERT)) {
             
             psInsert.setInt(1, saida.getIdProduto().getIdProduto()); 
-            psInsert.setInt(2, saida.getIdSector().getIdSector());   
+            psInsert.setInt(2, saida.getSector().getIdSector()); 
             psInsert.setInt(3, saida.getQuantidadeSaidaArmazem());
             psInsert.setTimestamp(4, new java.sql.Timestamp(saida.getDataSaidaArmazem().getTime()));
+            psInsert.setString(5, saida.getUnidadeMedida()); 
             
             psInsert.executeUpdate();
             return true;
@@ -110,8 +111,8 @@ public class SaidaArmazemDAO {
                     secId,
                     prodId,
                     rs.getInt("quantidade_saida_armazem"),
-                    ent,
-                    secRelatorio
+                    rs.getString("unidade_medida"), 
+                    ent
                 );
 
                 lista.add(s);
@@ -133,6 +134,6 @@ public class SaidaArmazemDAO {
 
         Integer quantidadeSomada = rs.getInt("total_saida");
 
-        return new SaidaArmazem(null, null, null, null, quantidadeSomada, ent, sec);
+        return new SaidaArmazem(null, null, sec, null, quantidadeSomada, null, ent);
     }
 }

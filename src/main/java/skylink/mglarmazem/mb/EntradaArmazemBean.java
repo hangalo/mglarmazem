@@ -65,19 +65,19 @@ public class EntradaArmazemBean implements Serializable {
         }
     }
 
-    public String salvar() {
+    public String salvar() throws SQLException {
         if (armazemDAO.salvar(armazem)) {
             produtoDAO.updateAumentarQuantidade(armazem.getQuantidadeProduto(), armazem.getProduto().getIdProduto());
             armazem = new EntradaArmazem();
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Guardar", "Dados guardados com sucesso");
+            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Guardar", "Dados guardados com sucesso");
             return "/entrada_armazem/registar_entrada?faces-redirect=true";
         } else {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "erro ao guardar dados");
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Erro", "Erro ao guardar dados");
             return null;
         }
     }
 
-    public void pesquisarPorDatas() {
+    public void pesquisarPorDatas() throws SQLException {
         if (!validarDatas()) {
             return;
         }

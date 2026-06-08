@@ -57,7 +57,8 @@ public class SaidaArmazemBean implements Serializable {
     }
 
     public void limpar() {
-        this.saida = new SaidaArmazem(null, null, new Sector(), new Produto(), null, new EntradaArmazem(), new Sector());
+       
+        this.saida = new SaidaArmazem(null, null, new Sector(), new Produto(), null, null, new EntradaArmazem());
         this.saida.setDataSaidaArmazem(new Date()); 
         this.idSector = null; 
     }

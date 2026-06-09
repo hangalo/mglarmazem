@@ -20,21 +20,21 @@
 
                             <h:outputLabel value="Data Início:" for="dtInicio"/>
                             <p:datePicker id="dtInicio"
-                                         value="#{entradaArmazemBean.dataInicio}"
-                                         pattern="dd/MM/yyyy"
-                                         showIcon="true"
-                                         required="true"
-                                         requiredMessage="Seleccione a data início"
-                                         maxdate="#{entradaArmazemBean.hoje}"/>
+                                          value="#{entradaArmazemBean.dataInicio}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data início"
+                                          maxdate="#{entradaArmazemBean.hoje}"/>
 
                             <h:outputLabel value="Data Fim:" for="dtFim"/>
                             <p:datePicker id="dtFim"
-                                         value="#{entradaArmazemBean.dataFim}"
-                                         pattern="dd/MM/yyyy"
-                                         showIcon="true"
-                                         required="true"
-                                         requiredMessage="Seleccione a data fim"
-                                         maxdate="#{entradaArmazemBean.hoje}"/>
+                                          value="#{entradaArmazemBean.dataFim}"
+                                          pattern="dd/MM/yyyy"
+                                          showIcon="true"
+                                          required="true"
+                                          requiredMessage="Seleccione a data fim"
+                                          maxdate="#{entradaArmazemBean.hoje}"/>
 
                         </h:panelGrid>
 
@@ -70,15 +70,19 @@
                                      sortMode="multiple"
                                      style="width:100%;">
 
-                            <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}" style="width:400px; text-align:left;">
+                            <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}" style="text-align:left;">
                                 <h:outputText value="#{a.produto.descricaoProduto}"/>
                             </p:column>
 
-                            <p:column headerText="Quantidade Acumulada" sortBy="#{a.quantidadeProduto}" style="width:200px; text-align:center;">
+                            <p:column headerText="Quantidade Acumulada" sortBy="#{a.quantidadeProduto}" style=" text-align:center;">
                                 <h:outputText value="#{a.quantidadeProduto}" style="font-weight:bold;"/>
                             </p:column>
 
-                            <p:column headerText="Valor Total Acumulado" sortBy="#{a.totalValorRelatorio}" style="width:250px; text-align:right; padding-right:15px;">
+                            <p:column headerText="Unidade" sortBy="#{a.unidadeMedida}" style="width:250px; text-align:center;">
+                                <h:outputText value="#{a.unidadeMedida}"/>
+                            </p:column>
+
+                            <p:column headerText="Valor Total Acumulado" sortBy="#{a.totalValorRelatorio}" style="width:220px; text-align:right; padding-right:15px;">
                                 <h:outputText value="#{a.totalValorRelatorio}" style="font-weight:bold; color: #2c3e50;">
                                     <f:convertNumber type="currency" currencySymbol="Kz " maxFractionDigits="2" minFractionDigits="2"/>
                                 </h:outputText>

@@ -1,6 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
       xmlns:h="jakarta.faces.html"
@@ -21,9 +20,10 @@
                             <p:selectOneMenu id="Produto"
                                              value="#{entradaArmazemBean.armazem.produto}"
                                              required="true"
-                                             converter="omnifaces.SelectItemsConverter" requiredMessage="Informe o produto">
+                                             converter="omnifaces.SelectItemsConverter" 
+                                             requiredMessage="Informe o produto">
                                 <f:selectItem itemLabel="Selecione um Produto" />
-                                <f:selectItems value="#{entradaArmazemBean.listaProdutos}"  var="pd"  itemValue="#{pd}" itemLabel="#{pd.descricaoProduto}"/>
+                                <f:selectItems value="#{entradaArmazemBean.listaProdutos}" var="pd" itemValue="#{pd}" itemLabel="#{pd.descricaoProduto}"/>
                             </p:selectOneMenu>
 
                             <h:outputLabel value="Sector de Destino:" for="Sector"/>
@@ -38,6 +38,20 @@
                                                itemValue="#{s}" 
                                                itemLabel="#{s.descricaoSector}"/>
                             </p:selectOneMenu>
+
+                            <h:outputLabel value="Unidade de Medida:" for="unidadeMedida"/>
+                            <p:selectOneMenu id="unidadeMedida"
+                                             value="#{entradaArmazemBean.armazem.unidadeMedida}"
+                                             required="true"
+                                             requiredMessage="Informe a unidade de medida">
+                                <f:selectItem itemLabel="Selecione a Unidade" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItem itemLabel="Unidade " itemValue="Uni"/>
+                                <f:selectItem itemLabel="Embalagens " itemValue="Embalagen"/>
+                                <f:selectItem itemLabel="Kg " itemValue="Kg"/>
+                                <f:selectItem itemLabel="Litro " itemValue="Litro"/>
+                                <f:selectItem itemLabel="Caixa " itemValue="Caixa"/>
+                            </p:selectOneMenu>
+
                             <h:outputLabel value="Preço de Compra (Kz)" for="preco"/>
                             <p:inputNumber id="preco"
                                            value="#{entradaArmazemBean.armazem.precoProduto}"

@@ -77,6 +77,7 @@
                                              style="padding: 0 5px;"/>
                         </div>
                     </div> 
+
                     <div style="max-width: 800px; margin: 0 auto 30px auto;">
                         <p:dataTable id="tblSector"
                                      value="#{saidaArmazemBean.listaSaidasPorSector}"
@@ -88,17 +89,19 @@
                                      emptyMessage="Nenhum registo encontrado."
                                      styleClass="ui-datatable-striped ui-datatable-gridlines">
 
-                            <p:column headerText="Produto"  style="width:200px; text-align:center;">
+                            <p:column headerText="Produto" style="text-align:left;">
                                 <h:outputText value="#{s.entradaArmazem.produto.descricaoProduto}"/>
                             </p:column>
 
-                            <p:column headerText="Saída" 
-                                      style="width:180px; text-align:center;">
+                            <p:column headerText="Saída" style="width:110px; text-align:center;">
                                 <h:outputText value="#{s.quantidadeSaidaArmazem}" style="font-weight:bold; color: #495057;"/>
                             </p:column>
 
-                            <p:column headerText="Stock Actual" 
-                                      style="width:180px; text-align:center;">
+                            <p:column headerText="Unidade" style="width:70px; text-align:center;">
+                                <h:outputText value="#{s.unidadeMedida}"/>
+                            </p:column>
+
+                            <p:column headerText="Stock Actual" style="width:130px; text-align:center;">
                                 <h:outputText value="#{s.entradaArmazem.produto.quantidadeExistente}" 
                                               styleClass="#{s.entradaArmazem.produto.quantidadeExistente == 0 ? 'ui-state-error-text' : ''}"
                                               style="#{s.entradaArmazem.produto.quantidadeExistente == 0 ? 'font-weight:bold;' : ''}"/>

@@ -30,7 +30,7 @@
 
                             <h:outputLabel value="Sector de Destino " style="font-size: 15px; font-weight: bold;"/>
                             <p:selectOneMenu id="sector"
-                                             value="#{saidaArmazemBean.saida.idSector}"
+                                             value="#{saidaArmazemBean.saida.sector}"
                                              required="true"
                                              converter="omnifaces.SelectItemsConverter" 
                                              requiredMessage="Informe o Sector">
@@ -48,6 +48,19 @@
                                          requiredMessage="Informe a quantidade">
                                 <f:convertNumber integerOnly="true"/>
                             </p:inputText>
+
+                            <h:outputLabel value="Unidade de Medida" style="font-size: 15px; font-weight: bold;"/>
+                            <p:selectOneMenu id="unidadeMedida"
+                                             value="#{saidaArmazemBean.saida.unidadeMedida}"
+                                             required="true"
+                                             requiredMessage="Informe a unidade de medida">
+                                <f:selectItem itemLabel="Selecione a Unidade" itemValue="#{null}" noSelectionOption="true"/>
+                                <f:selectItem itemLabel="Unidades (Uni)" itemValue="Uni"/>
+                                <f:selectItem itemLabel="Kilogramas (Kg)" itemValue="Kg"/>
+                                <f:selectItem itemLabel="Litros (L)" itemValue="L"/>
+                                <f:selectItem itemLabel="Caixas (Cx)" itemValue="Cx"/>
+                                <f:selectItem itemLabel="Metros (M)" itemValue="M"/>
+                            </p:selectOneMenu>
 
                         </h:panelGrid>
 

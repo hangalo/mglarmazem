@@ -18,23 +18,22 @@ import skylink.mglarmazem.modelo.EntradaArmazem;
 public class SaidaArmazemDAO {
 
     private static final String INSERT = "INSERT INTO saida_armazem (id_produto, id_sector, quantidade_saida_armazem, data_saida_armazem, unidade_medida) VALUES (?, ?, ?, ?, ?)";
-    
-    private static final String LISTAR_POR_SECTOR = "SELECT sec.descricao_sector, p.descricao_produto, p.quantidade_existente, s.unidade_medida, SUM(s.quantidade_saida_armazem) AS total_saida FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE sec.id_sector = ? AND s.data_saida_armazem BETWEEN ? AND ? GROUP BY sec.descricao_sector, p.descricao_produto, p.quantidade_existente, s.unidade_medida";
-    
-    private static final String PESQUISAR_SAIDAS_PRODUTO = "SELECT p.descricao_produto AS descricao_prod, SUM(s.quantidade_saida_armazem) AS total_quantidade FROM produto p INNER JOIN saida_armazem s ON p.id_produto = s.id_produto WHERE s.data_saida_armazem BETWEEN ? AND ? GROUP BY p.descricao_produto";
 
-    private static final String LISTAR_TUDO = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.unidade_medida, s.id_produto, p.descricao_produto, sec.descricao_sector, (SELECT e.preco_produto FROM entrada_armazem e WHERE e.id_produto = s.id_produto ORDER BY e.id_armazem DESC LIMIT 1) AS preco_produto FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector ORDER BY s.data_saida_armazem DESC";
+    private static final String LISTAR_POR_SECTOR = "SELECT s.id_saida_armazem AS numero_operacao, p.descricao_produto AS produto, sec.descricao_sector AS sector_destino, s.quantidade_saida_armazem AS qtd_retirada, s.unidade_medida AS unidade, s.data_saida_armazem AS data FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE sec.id_sector = ? AND s.data_saida_armazem BETWEEN ? AND ?";
+
+    private static final String PESQUISAR_SAIDAS_PRODUTO = "SELECT p.descricao_produto AS descricao_prod, SUM(s.quantidade_saida_armazem) AS total_quantidade, s.unidade_medida AS unidade FROM produto p INNER JOIN saida_armazem s ON p.id_produto = s.id_produto WHERE s.data_saida_armazem BETWEEN ? AND ? GROUP BY p.descricao_produto, s.unidade_medida";
+
+    private static final String LISTAR_POR_SECTOR_E_DATAS = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.unidade_medida, s.id_produto, p.descricao_produto, sec.descricao_sector FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE s.id_sector = ? AND s.data_saida_armazem BETWEEN ? AND ? ORDER BY s.data_saida_armazem DESC";
 
     public boolean registrarSaida(SaidaArmazem saida) throws SQLException {
-        try (Connection conn = ConnectionDB.getConnection(); 
-             PreparedStatement psInsert = conn.prepareStatement(INSERT)) {
-            
-            psInsert.setInt(1, saida.getIdProduto().getIdProduto()); 
-            psInsert.setInt(2, saida.getSector().getIdSector()); 
+        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement psInsert = conn.prepareStatement(INSERT)) {
+
+            psInsert.setInt(1, saida.getIdProduto().getIdProduto());
+            psInsert.setInt(2, saida.getSector().getIdSector());
             psInsert.setInt(3, saida.getQuantidadeSaidaArmazem());
             psInsert.setTimestamp(4, new java.sql.Timestamp(saida.getDataSaidaArmazem().getTime()));
-            psInsert.setString(5, saida.getUnidadeMedida()); 
-            
+            psInsert.setString(5, saida.getUnidadeMedida());
+
             psInsert.executeUpdate();
             return true;
         }
@@ -43,12 +42,11 @@ public class SaidaArmazemDAO {
     public List<SaidaArmazem> listarPorSector(int idSector, java.util.Date inicio, java.util.Date fim) throws SQLException {
         List<SaidaArmazem> lista = new ArrayList<>();
 
-        try (Connection conn = ConnectionDB.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(LISTAR_POR_SECTOR)) {
+        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(LISTAR_POR_SECTOR)) {
 
             ps.setInt(1, idSector);
             ps.setTimestamp(2, new java.sql.Timestamp(inicio.getTime()));
-            ps.setTimestamp(3, new java.sql.Timestamp(fim.getTime()));    
+            ps.setTimestamp(3, new java.sql.Timestamp(fim.getTime()));
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -59,63 +57,66 @@ public class SaidaArmazemDAO {
         return lista;
     }
 
-    public List<EntradaArmazem> pesquisarSaidasPorProduto(java.util.Date inicio, java.util.Date fim) throws SQLException {
-        List<EntradaArmazem> lista = new ArrayList<>();
+ public List<EntradaArmazem> pesquisarSaidasPorProduto(java.util.Date inicio, java.util.Date fim) throws SQLException {
+    List<EntradaArmazem> lista = new ArrayList<>();
+    if (inicio == null || fim == null) return lista;
 
-        try (Connection conn = ConnectionDB.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(PESQUISAR_SAIDAS_PRODUTO)) {
+    try (Connection conn = ConnectionDB.getConnection(); 
+         PreparedStatement ps = conn.prepareStatement(PESQUISAR_SAIDAS_PRODUTO)) {
 
-            ps.setTimestamp(1, new java.sql.Timestamp(inicio.getTime()));
-            ps.setTimestamp(2, new java.sql.Timestamp(fim.getTime()));
+        ps.setTimestamp(1, new java.sql.Timestamp(inicio.getTime()));
+        ps.setTimestamp(2, new java.sql.Timestamp(fim.getTime()));
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    EntradaArmazem entrada = new EntradaArmazem(
-                            rs.getString("descricao_prod"),
-                            rs.getInt("total_quantidade"),
-                            java.math.BigDecimal.ZERO
-                    );
-                    lista.add(entrada);
-                }
+        try (ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                EntradaArmazem item = new EntradaArmazem();
+
+                Produto p = new Produto();
+                p.setDescricaoProduto(rs.getString("descricao_prod")); 
+
+                item.setProduto(p);
+                item.setQuantidadeProduto(rs.getInt("total_quantidade")); 
+                item.setUnidadeMedida(rs.getString("unidade"));          
+                
+                item.setTotalValorRelatorio(java.math.BigDecimal.ZERO);
+
+                lista.add(item);
             }
         }
-        return lista;
     }
+    return lista;
+}
 
-    public List<SaidaArmazem> listarTudo() throws SQLException {
+    public List<SaidaArmazem> listarEntreDatasPorSector(int idSector, java.util.Date inicio, java.util.Date fim) throws SQLException {
         List<SaidaArmazem> lista = new ArrayList<>();
-        
-        try (Connection conn = ConnectionDB.getConnection(); 
-             PreparedStatement ps = conn.prepareStatement(LISTAR_TUDO); 
-             ResultSet rs = ps.executeQuery()) {
-                 
-            while (rs.next()) {
-                Sector secId = new Sector();
-                secId.setIdSector(rs.getInt("id_sector"));
-                
-                Produto prodId = new Produto();
-                prodId.setIdProduto(rs.getInt("id_produto"));
+        try (Connection conn = ConnectionDB.getConnection(); PreparedStatement ps = conn.prepareStatement(LISTAR_POR_SECTOR_E_DATAS)) {
+            ps.setInt(1, idSector);
+            ps.setTimestamp(2, new java.sql.Timestamp(inicio.getTime()));
+            ps.setTimestamp(3, new java.sql.Timestamp(fim.getTime()));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Sector sec = new Sector();
+                    sec.setIdSector(rs.getInt("id_sector"));
+                    sec.setDescricaoSector(rs.getString("descricao_sector"));
 
-                EntradaArmazem ent = new EntradaArmazem();
-                Produto pRelatorio = new Produto();
-                pRelatorio.setDescricaoProduto(rs.getString("descricao_produto"));
-                ent.setProduto(pRelatorio);
-                ent.setPrecoProduto(rs.getDouble("preco_produto"));
+                    Produto prod = new Produto();
+                    prod.setIdProduto(rs.getInt("id_produto"));
+                    prod.setDescricaoProduto(rs.getString("descricao_produto"));
 
-                Sector secRelatorio = new Sector();
-                secRelatorio.setDescricaoSector(rs.getString("descricao_sector"));
+                    EntradaArmazem ent = new EntradaArmazem();
+                    ent.setProduto(prod);
 
-                SaidaArmazem s = new SaidaArmazem(
-                    rs.getInt("id_saida_armazem"),
-                    rs.getTimestamp("data_saida_armazem"),
-                    secId,
-                    prodId,
-                    rs.getInt("quantidade_saida_armazem"),
-                    rs.getString("unidade_medida"), 
-                    ent
-                );
-
-                lista.add(s);
+                    SaidaArmazem s = new SaidaArmazem(
+                            rs.getInt("id_saida_armazem"),
+                            rs.getTimestamp("data_saida_armazem"),
+                            sec,
+                            prod,
+                            rs.getInt("quantidade_saida_armazem"),
+                            rs.getString("unidade_medida"),
+                            ent
+                    );
+                    lista.add(s);
+                }
             }
         }
         return lista;
@@ -123,18 +124,19 @@ public class SaidaArmazemDAO {
 
     private SaidaArmazem mapRelatorioSector(ResultSet rs) throws SQLException {
         Produto p = new Produto();
-        p.setDescricaoProduto(rs.getString("descricao_produto"));
-        p.setQuantidadeExistente(rs.getInt("quantidade_existente"));
+        p.setDescricaoProduto(rs.getString("produto"));
 
         EntradaArmazem ent = new EntradaArmazem();
         ent.setProduto(p);
 
         Sector sec = new Sector();
-        sec.setDescricaoSector(rs.getString("descricao_sector"));
+        sec.setDescricaoSector(rs.getString("sector_destino"));
 
-        Integer quantidadeSomada = rs.getInt("total_saida");
-        String unidade = rs.getString("unidade_medida");
+        int idSaida = rs.getInt("numero_operacao");
+        java.util.Date dataSaida = rs.getTimestamp("data");
+        int qtdRetirada = rs.getInt("qtd_retirada");
+        String unidade = rs.getString("unidade");
 
-        return new SaidaArmazem(null, null, sec, null, quantidadeSomada, unidade, ent);
+        return new SaidaArmazem(idSaida, dataSaida, sec, p, qtdRetirada, unidade, ent);
     }
 }

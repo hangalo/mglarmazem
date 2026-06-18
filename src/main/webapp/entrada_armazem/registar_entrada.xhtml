@@ -39,27 +39,24 @@
                                                itemLabel="#{s.descricaoSector}"/>
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Unidade de Medida:" for="unidadeMedida"/>
+                            <h:outputLabel value="Unidade de Medida" for="unidadeMedida"/>
                             <p:selectOneMenu id="unidadeMedida"
                                              value="#{entradaArmazemBean.armazem.unidadeMedida}"
                                              required="true"
                                              requiredMessage="Informe a unidade de medida">
                                 <f:selectItem itemLabel="Selecione a Unidade" itemValue="#{null}" noSelectionOption="true"/>
-                                <f:selectItem itemLabel="Unidade " itemValue="Uni"/>
-                                <f:selectItem itemLabel="Embalagens " itemValue="Embalagen"/>
-                                <f:selectItem itemLabel="Kg " itemValue="Kg"/>
-                                <f:selectItem itemLabel="Litro " itemValue="Litro"/>
-                                <f:selectItem itemLabel="Caixa " itemValue="Caixa"/>
+                                <f:selectItem itemLabel="Embalagens " itemValue="Embalagens"/>
+                                <f:selectItem itemLabel="Kilogramas" itemValue="Kilogramas"/>
+                                <f:selectItem itemLabel="Litros " itemValue="Litros"/>
+                                <f:selectItem itemLabel="Caixas " itemValue="Caixas"/>
                             </p:selectOneMenu>
 
-                            <h:outputLabel value="Preço de Compra (Kz)" for="preco"/>
+                            <h:outputLabel value="Preço de Compra " for="preco"/>
                             <p:inputNumber id="preco"
                                            value="#{entradaArmazemBean.armazem.precoProduto}"
                                            required="true"
                                            requiredMessage="Informe o preço da Compra"
-                                           thousandSeparator=" "
-                                           decimalSeparator="."
-                                           decimalPlaces="2"/>
+                                           thousandSeparator=" " decimalSeparator="." decimalPlaces="2"/>
 
                             <h:outputLabel value="Quantidade Comprada" for="qtd"/>
                             <p:inputText id="qtd"
@@ -70,10 +67,7 @@
                             </p:inputText>
 
                             <h:outputLabel value="Data de Compra" for="dataCompra"/>
-                            <p:datePicker id="dataCompra"
-                                          value="#{entradaArmazemBean.armazem.dataCompra}"
-                                          pattern="dd/MM/yyyy"
-                                          showIcon="true"
+                            <p:datePicker id="dataCompra" value="#{entradaArmazemBean.armazem.dataCompra}" pattern="dd/MM/yyyy" showIcon="true"
                                           maxdate="#{entradaArmazemBean.hoje}"/>
 
                         </h:panelGrid>
@@ -82,18 +76,10 @@
 
                         <div style="text-align:center; margin-top:15px;">
                             <p:commandButton value="Guardar"
-                                             action="#{entradaArmazemBean.salvar}"
-                                             update="frmArmazem"
-                                             icon="pi pi-save"
-                                             styleClass="ui-button-success"
-                                             style="margin-right:10px;"/>
+                                             action="#{entradaArmazemBean.salvar}" update="frmArmazem" icon="pi pi-save" styleClass="ui-button-success" style="margin-right:10px;"/>
 
                             <p:commandButton value="Limpar"
-                                             action="#{entradaArmazemBean.novo}"
-                                             update="frmArmazem"
-                                             icon="pi pi-refresh"
-                                             styleClass="ui-button-secondary"
-                                             immediate="true"/>
+                                             action="#{entradaArmazemBean.novo}" update="frmArmazem" icon="pi pi-refresh" styleClass="ui-button-secondary" immediate="true"/>
                         </div>
                     </p:panel>
                 </h:form>

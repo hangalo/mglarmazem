@@ -1,0 +1,125 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+        <ui:composition template="./../WEB-INF/templates/template_saida_armazem.xhtml">
+            <ui:define name="content">
+
+                <p:messages id="msgs" closable="true"/>
+
+                <h:form id="frmTabela">
+                    <p:panel header="Histórico de Movimentos de Saída" style="max-width:1100px; margin:0 auto;">
+
+                        <div style="display: flex; justify-content: center; margin: 15px 0 20px 0;">
+                            <div style="display: flex; align-items: center; border: 1px solid #dee2e6; background-color: #ffffff; padding: 10px 15px; border-radius: 4px; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <h:outputLabel value="Sector:" style="color: #495057; font-size: 0.95em; white-space: nowrap;"/>
+                                    <p:selectOneMenu id="sector"
+                                                     value="#{saidaArmazemBean.saida.sector}"
+                                                     required="true"
+                                                     converter="omnifaces.SelectItemsConverter"
+                                                     requiredMessage="Seleccione o sector">
+                                        <f:selectItem itemLabel="Selecione o Sector" itemValue="#{null}" noSelectionOption="true"/>
+                                        <f:selectItems value="#{saidaArmazemBean.listaSectores}"
+                                                       var="sec"
+                                                       itemValue="#{sec}"
+                                                       itemLabel="#{sec.descricaoSector}"/>
+                                    </p:selectOneMenu>
+                                </div>
+
+                                <span style="color: #ced4da; font-weight: 300;">|</span>
+
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <h:outputLabel value="Período entre:" for="dtInicio" style="color: #495057; font-size: 0.95em; white-space: nowrap;"/>
+                                    <p:datePicker id="dtInicio"
+                                                  value="#{saidaArmazemBean.dataInicio}"
+                                                  pattern="dd/MM/yyyy"
+                                                  showIcon="false"
+                                                  placeholder="Data inicial"
+                                                  required="true"
+                                                  requiredMessage="Seleccione a data início"
+                                                  maxdate="#{saidaArmazemBean.hoje}"
+                                                  inputStyle="width: 120px; text-align: center;"/>
+                                </div>
+
+                                <h:outputText value="e" style="color: #495057; font-size: 0.95em;"/>
+
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <p:datePicker id="dtFim"
+                                                  value="#{saidaArmazemBean.dataFim}"
+                                                  pattern="dd/MM/yyyy"
+                                                  showIcon="false"
+                                                  placeholder="Data final"
+                                                  required="true"
+                                                  requiredMessage="Seleccione a data fim"
+                                                  maxdate="#{saidaArmazemBean.hoje}"
+                                                  inputStyle="width: 120px; text-align: center;"/>
+                                </div>
+
+                                <p:commandButton value="Pesquisar..."
+                                                 action="#{saidaArmazemBean.carregarHistorico}"
+                                                 update="tblSaidas :msgs"
+                                                 process="@form"
+                                                 styleClass="ui-button-raised"
+                                                 style="background-color: #2196F3; border-color: #2196F3; padding: 2px 15px; font-size: 0.95em; font-weight: 500; text-transform: none;"/>
+
+                                <p:commandButton action="#{saidaArmazemBean.limparFiltros}"
+                                                 update="frmTabela :msgs"
+                                                 icon="pi pi-refresh"
+                                                 styleClass="ui-button-flat ui-button-plain"
+                                                 immediate="true"
+                                                 title="Limpar Filtros"
+                                                 style="padding: 0 5px;"/>
+                            </div>
+                        </div>
+
+                        <p:dataTable id="tblSaidas"
+                                     value="#{saidaArmazemBean.listaSaidas}"
+                                     var="s"
+                                     paginator="true"
+                                     rows="10"
+                                     paginatorPosition="bottom"
+                                     paginatorAlwaysVisible="false"
+                                     emptyMessage="Nenhum registo de saída encontrado para o período selecionado."
+                                     styleClass="ui-datatable-striped"
+                                     style="width:100%;">
+
+                            <p:column headerText="Nº Operação" style="width:120px; text-align:center;">
+                                <h:outputText value="#{s.idSaidaArmazem}"/>
+                            </p:column>
+
+                            <p:column headerText="Produto" style="text-align:left;">
+                                <h:outputText value="#{s.idProduto.descricaoProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Sector de Destino" style="text-align:left;">
+                                <h:outputText value="#{s.sector.descricaoSector}"/>
+                            </p:column>
+
+                            <p:column headerText="Qtd. Retirada" style="width:120px; text-align:center;">
+                                <h:outputText value="#{s.quantidadeSaidaArmazem}" style="font-weight:bold; color:#c0392b;"/>
+                            </p:column>
+
+                            <p:column headerText="Unidade" style="width:80px; text-align:center;">
+                                <h:outputText value="#{s.unidadeMedida != null ? s.unidadeMedida : '---'}"/>
+                            </p:column>
+
+                            <p:column headerText="Data" style="width:140px; text-align:center;">
+                                <h:outputText value="#{s.dataSaidaArmazem}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="GMT+1"/>
+                                </h:outputText>
+                            </p:column>
+
+                        </p:dataTable>
+                    </p:panel>
+                </h:form>
+            </ui:define>
+        </ui:composition>
+    </body>
+</html>

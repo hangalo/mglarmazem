@@ -7,8 +7,10 @@ import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Named;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import skylink.armazem.modelo.Produto;
 import skylink.armazem.modelo.SaidaArmazem;
@@ -29,140 +31,201 @@ public class SaidaArmazemBean implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(SaidaArmazemBean.class.getName());
 
     private SaidaArmazem saida;
-    private List<SaidaArmazem> listaSaidas; 
-    private List<EntradaArmazem> listaSaidasPorProduto; 
-    
-    private Sector idSector; 
-    private List<Sector> listaSectores; 
-    private List<SaidaArmazem> listaSaidasPorSector; 
 
     private Date dataInicio;
     private Date dataFim;
     private Date hoje = new Date();
 
-    private final ProdutoDAO produtoDAO = new ProdutoDAO();
-    private final SaidaArmazemDAO dao = new SaidaArmazemDAO();
-    private final SectorDAO sectorDAO = new SectorDAO(); 
+    private List<SaidaArmazem>   listaSaidasPorSector   = new ArrayList<>();
+    private List<EntradaArmazem> listaSaidasPorProduto  = new ArrayList<>();
+    private List<SaidaArmazem>   listaDetalhadaPorSector = new ArrayList<>();
+    private List<SaidaArmazem>   listaSaidas            = new ArrayList<>();
+
+    private List<Sector>  listaSectores  = new ArrayList<>();
+    private List<Produto> listaProdutos  = new ArrayList<>();
+
+    private transient SaidaArmazemDAO dao;
+    private transient ProdutoDAO      produtoDAO;
+    private transient SectorDAO       sectorDAO;
 
     @PostConstruct
     public void init() {
+        inicializarDaos();
         limpar();
-        
         try {
-            carregarHistorico();
-            carregarSectores(); 
+            carregarDropdowns();
         } catch (Exception e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro crítico", "Falha na inicialização dos dados.");
+            LOGGER.log(Level.SEVERE, "Erro na inicialização do bean", e);
+            addMensagem(FacesMessage.SEVERITY_ERROR, "Erro crítico",
+                    "Falha ao carregar dados iniciais. Tente recarregar a página.");
         }
     }
 
+    private void inicializarDaos() {
+        if (dao        == null) dao        = new SaidaArmazemDAO();
+        if (produtoDAO == null) produtoDAO = new ProdutoDAO();
+        if (sectorDAO  == null) sectorDAO  = new SectorDAO();
+    }
+
+   
+    public String registrar() {
+        inicializarDaos();
+
+        if (saida.getIdProduto() == null || saida.getIdProduto().getIdProduto() == 0) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção",
+                    "Seleccione um produto válido para realizar a saída.");
+            return null;
+        }
+        if (saida.getSector() == null || saida.getSector().getIdSector() == 0) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção",
+                    "Seleccione o sector de destino.");
+            return null;
+        }
+        if (saida.getQuantidadeSaidaArmazem() <= 0) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção",
+                    "A quantidade de saída deve ser maior que zero.");
+            return null;
+        }
+
+        int idProd    = saida.getIdProduto().getIdProduto();
+        int qtdeSaida = saida.getQuantidadeSaidaArmazem();
+
+        try {
+            int disponivel = produtoDAO.buscarQuantidadeAtual(idProd);
+
+            if (qtdeSaida > disponivel) {
+                addMensagem(FacesMessage.SEVERITY_WARN, "Estoque Insuficiente",
+                        "Solicitado: " + qtdeSaida + " | Disponível: " + disponivel + " unidades.");
+                return null;
+            }
+
+            if (dao.registrarSaida(saida)) {
+                produtoDAO.updateDiminuirQuantidade(qtdeSaida, idProd);
+                FacesContext.getCurrentInstance()
+                        .getExternalContext().getFlash().setKeepMessages(true);
+                addMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Saída registada com sucesso!");
+                limpar();
+                return "/saida_armazem/registar_saida?faces-redirect=true";
+            } else {
+                addMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                        "Não foi possível guardar o registo.");
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro ao registrar saída", e);
+            addMensagem(FacesMessage.SEVERITY_ERROR, "Erro de Base de Dados",
+                    "Falha ao comunicar com a base de dados.");
+        }
+        return null;
+    }
+
+    
+    public void pesquisarPorSector() {
+        inicializarDaos();
+
+        if (saida.getSector() == null || saida.getSector().getIdSector() == 0) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione um sector.");
+            return;
+        }
+        if (!validarDatas()) return;
+
+        try {
+            listaSaidasPorSector = dao.listarEntreDatasPorSector(
+                    saida.getSector().getIdSector(), dataInicio, dataFim);
+
+            if (listaSaidasPorSector.isEmpty()) {
+                addMensagem(FacesMessage.SEVERITY_INFO, "Sem resultados",
+                        "Nenhuma saída encontrada para o sector e período indicados.");
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro em pesquisarPorSector", e);
+            addMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Falha ao listar saídas por sector.");
+        }
+    }
+
+   public void pesquisarSaidasProduto() {
+    inicializarDaos();
+
+    if (!validarDatas()) return;
+
+    try {
+        listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
+
+        if (listaSaidasPorProduto.isEmpty()) {
+            addMensagem(FacesMessage.SEVERITY_INFO, "Sem resultados",
+                    "Nenhuma saída encontrada para o período indicado.");
+        }
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Erro em pesquisarSaidasProduto", e);
+        addMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                "Falha ao pesquisar saídas por produto.");
+    }
+}
+
+public void carregarHistorico() {
+    inicializarDaos();
+    if (!validarDatas()) return;
+    try {
+        listaSaidas = dao.listarEntreDatasPorSector(
+                saida.getSector().getIdSector(), dataInicio, dataFim);
+        if (listaSaidas.isEmpty()) {
+            addMensagem(FacesMessage.SEVERITY_INFO, "Sem resultados",
+                    "Nenhum registo de saída encontrado para o período seleccionado.");
+        }
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Erro em carregarHistorico", e);
+        addMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                "Falha ao carregar histórico de saídas.");
+    }
+}
+
     public void limpar() {
-       
-        this.saida = new SaidaArmazem(null, null, new Sector(), new Produto(), null, null, new EntradaArmazem());
-        this.saida.setDataSaidaArmazem(new Date()); 
-        this.idSector = null; 
+        saida = new SaidaArmazem();
+        saida.setSector(new Sector());
+        saida.setIdProduto(new Produto());
+        saida.setEntradaArmazem(new EntradaArmazem());
+        saida.setDataSaidaArmazem(new Date());
+        saida.setQuantidadeSaidaArmazem(0);
     }
 
     public void limparFiltros() {
-        this.dataInicio = null;
-        this.dataFim = null;
-        this.idSector = null;
-        if (this.listaSaidasPorProduto != null) {
-            this.listaSaidasPorProduto.clear();
-        }
-        if (this.listaSaidasPorSector != null) {
-            this.listaSaidasPorSector.clear();
-        }
-    }
-    
-    private void carregarSectores() throws Exception {
-        this.listaSectores = sectorDAO.listarTudo();
-    }
-    
-    public void carregarHistorico() throws SQLException {
-        this.listaSaidas = dao.listarTudo();
+        dataInicio              = null;
+        dataFim                 = null;
+        listaSaidasPorSector    = new ArrayList<>();
+        listaSaidasPorProduto   = new ArrayList<>();
+        listaDetalhadaPorSector = new ArrayList<>();
+        listaSaidas             = new ArrayList<>();
+        if (saida != null) saida.setSector(new Sector());
     }
 
-    public void pesquisarPorSector() throws SQLException {
-        if (idSector == null || idSector.getIdSector() == null || idSector.getIdSector() == 0 || dataInicio == null || dataFim == null) {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o sector e o intervalo de datas corretamente.");
-            return;
-        }
-
-        this.listaSaidasPorSector = dao.listarPorSector(idSector.getIdSector(), dataInicio, dataFim);
-        
-        if (this.listaSaidasPorSector == null || this.listaSaidasPorSector.isEmpty()) {
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Nenhum registo encontrado nesta data ", "Nenhum registo encontrado .");
-        }
-    }
-
-    public void pesquisarSaidasProduto() throws SQLException {
-        if (dataInicio == null || dataFim == null) {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione o intervalo de datas.");
-            return;
-        }
-        this.listaSaidasPorProduto = dao.pesquisarSaidasPorProduto(dataInicio, dataFim);
-    }
-
-    public String registrar() throws SQLException {
-        
-        int qtdeSaida = saida.getQuantidadeSaidaArmazem();
-        
-        if (saida.getIdProduto() == null || saida.getIdProduto().getIdProduto() == null) {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "Seleccione um produto válido para realizar a saída.");
-            return null;
-        }
-        int idProd = saida.getIdProduto().getIdProduto(); 
-
-        if (qtdeSaida <= 0) {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Atenção", "A quantidade de saída deve ser maior que zero.");
-            return null;
-        }
-
-        int quantidadeDisponivel = produtoDAO.buscarQuantidadeAtual(idProd); 
-
-        if (qtdeSaida > quantidadeDisponivel) {
-            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Estoque Insuficiente!", 
-                "Não é possível realizar a saída. Solicitado: " + qtdeSaida + 
-                " unidades | Disponível em Estoque: " + quantidadeDisponivel + " unidades.");
-            return null; 
-        }
-
-        if (dao.registrarSaida(saida)) {
-            
-            produtoDAO.updateDiminuirQuantidade(qtdeSaida, idProd);
-            
-            FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
-            adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Dados guardados com sucesso!");
-            limpar(); 
-            return "/saida_armazem/registar_saida?faces-redirect=true";        
-        } else {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Erro ao guardar dados no sistema.");
-            return null;
-        }
-    }
    
-    private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));
+    private void carregarDropdowns() throws Exception {
+        listaSectores = sectorDAO.listarTudo();
+        listaProdutos = produtoDAO.listarTudo();
     }
 
+    private boolean validarDatas() {
+        if (dataInicio == null || dataFim == null) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção",
+                    "Seleccione o intervalo de datas.");
+            return false;
+        }
+        if (dataFim.before(dataInicio)) {
+            addMensagem(FacesMessage.SEVERITY_WARN, "Atenção",
+                    "A data de fim não pode ser anterior à data de início.");
+            return false;
+        }
+        return true;
+    }
+
+    private void addMensagem(FacesMessage.Severity sev, String resumo, String detalhe) {
+        FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage(sev, resumo, detalhe));
+    }
+
+   
     public SaidaArmazem getSaida() { return saida; }
     public void setSaida(SaidaArmazem saida) { this.saida = saida; }
-
-    public List<SaidaArmazem> getListaSaidas() { return listaSaidas; }
-    public void setListaSaidas(List<SaidaArmazem> listaSaidas) { this.listaSaidas = listaSaidas; }
-
-    public List<EntradaArmazem> getListaSaidasPorProduto() { return listaSaidasPorProduto; }
-    public void setListaSaidasPorProduto(List<EntradaArmazem> listaSaidasPorProduto) { this.listaSaidasPorProduto = listaSaidasPorProduto; }
-
-    public Sector getIdSector() { return idSector; }
-    public void setIdSector(Sector idSector) { this.idSector = idSector; }
-
-    public List<Sector> getListaSectores() { return listaSectores; }
-    public void setListaSectores(List<Sector> listaSectores) { this.listaSectores = listaSectores; }
-
-    public List<SaidaArmazem> getListaSaidasPorSector() { return listaSaidasPorSector; }
-    public void setListaSaidasPorSector(List<SaidaArmazem> listaSaidasPorSector) { this.listaSaidasPorSector = listaSaidasPorSector; }
 
     public Date getDataInicio() { return dataInicio; }
     public void setDataInicio(Date dataInicio) { this.dataInicio = dataInicio; }
@@ -171,5 +234,22 @@ public class SaidaArmazemBean implements Serializable {
     public void setDataFim(Date dataFim) { this.dataFim = dataFim; }
 
     public Date getHoje() { return hoje; }
-    public void setHoje(Date hoje) { this.hoje = hoje; }
+
+    public List<SaidaArmazem> getListaSaidasPorSector() { return listaSaidasPorSector; }
+    public void setListaSaidasPorSector(List<SaidaArmazem> l) { this.listaSaidasPorSector = l; }
+
+    public List<EntradaArmazem> getListaSaidasPorProduto() { return listaSaidasPorProduto; }
+    public void setListaSaidasPorProduto(List<EntradaArmazem> l) { this.listaSaidasPorProduto = l; }
+
+    public List<SaidaArmazem> getListaDetalhadaPorSector() { return listaDetalhadaPorSector; }
+    public void setListaDetalhadaPorSector(List<SaidaArmazem> l) { this.listaDetalhadaPorSector = l; }
+
+    public List<SaidaArmazem> getListaSaidas() { return listaSaidas; }
+    public void setListaSaidas(List<SaidaArmazem> l) { this.listaSaidas = l; }
+
+    public List<Sector> getListaSectores() { return listaSectores; }
+    public void setListaSectores(List<Sector> l) { this.listaSectores = l; }
+
+    public List<Produto> getListaProdutos() { return listaProdutos; }
+    public void setListaProdutos(List<Produto> l) { this.listaProdutos = l; }
 }

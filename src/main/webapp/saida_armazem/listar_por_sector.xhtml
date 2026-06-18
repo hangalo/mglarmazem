@@ -17,49 +17,23 @@
                         <div style="display: flex; align-items: center; border: 1px solid #dee2e6; background-color: #ffffff; padding: 10px 15px; border-radius: 4px; gap: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
 
                             <div style="display: flex; align-items: center; gap: 8px;">
-                                <h:outputLabel value="Sector:" for="cbSector" style="color: #495057; font-size: 0.95em; white-space: nowrap;"/>
-                                <p:selectOneMenu id="cbSector"
-                                                 value="#{saidaArmazemBean.idSector}"
-                                                 converter="omnifaces.SelectItemsConverter"
+                                <h:outputLabel value="Sector de Destino " style="font-size: 15px; font-weight: bold;"/>
+                                <p:selectOneMenu id="sector"
+                                                 value="#{saidaArmazemBean.saida.sector}"
                                                  required="true"
-                                                 requiredMessage="Seleccione o sector"
-                                                 style="min-width: 200px;">
-                                    <f:selectItem itemLabel="-- Seleccione --" itemValue="#{null}" noSelectionOption="true"/>
-                                    <f:selectItems value="#{saidaArmazemBean.listaSectores}"
-                                                   var="sec"
-                                                   itemValue="#{sec}"
-                                                   itemLabel="#{sec.descricaoSector}"/>
+                                                 converter="omnifaces.SelectItemsConverter" 
+                                                 requiredMessage="Informe o Sector">
+                                    <f:selectItem itemLabel="Selecione o Sector" itemValue="#{null}" noSelectionOption="true"/>
+                                    <f:selectItems value="#{sectorBean.listaSectores}" 
+                                                   var="s" 
+                                                   itemValue="#{s}" 
+                                                   itemLabel="#{s.descricaoSector}"/>
                                 </p:selectOneMenu>
                             </div>
 
                             <span style="color: #ced4da; font-weight: 300;">|</span>
 
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <h:outputLabel value="Procura entre:" for="dtInicio" style="color: #495057; font-size: 0.95em; white-space: nowrap;"/>
-                                <p:datePicker id="dtInicio"
-                                              value="#{saidaArmazemBean.dataInicio}"
-                                              pattern="dd/MM/yyyy"
-                                              showIcon="false"
-                                              placeholder="Data inicial"
-                                              required="true"
-                                              requiredMessage="Seleccione a data início"
-                                              maxdate="#{saidaArmazemBean.hoje}"
-                                              inputStyle="width: 120px; text-align: center;"/>
-                            </div>
-
-                            <h:outputText value="e" style="color: #495057; font-size: 0.95em;"/>
-
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <p:datePicker id="dtFim"
-                                              value="#{saidaArmazemBean.dataFim}"
-                                              pattern="dd/MM/yyyy"
-                                              showIcon="false"
-                                              placeholder="Data final"
-                                              required="true"
-                                              requiredMessage="Seleccione a data fim"
-                                              maxdate="#{saidaArmazemBean.hoje}"
-                                              inputStyle="width: 120px; text-align: center;"/>
-                            </div>
+                          
 
                             <p:commandButton value="Pesquisar..."
                                              action="#{saidaArmazemBean.pesquisarPorSector}"
@@ -78,7 +52,7 @@
                         </div>
                     </div> 
 
-                    <div style="max-width: 800px; margin: 0 auto 30px auto;">
+                    <div style="max-width: 950px; margin: 0 auto 30px auto;">
                         <p:dataTable id="tblSector"
                                      value="#{saidaArmazemBean.listaSaidasPorSector}"
                                      var="s"
@@ -89,22 +63,30 @@
                                      emptyMessage="Nenhum registo encontrado."
                                      styleClass="ui-datatable-striped ui-datatable-gridlines">
 
-                            <p:column headerText="Produto" style="text-align:left;">
-                                <h:outputText value="#{s.entradaArmazem.produto.descricaoProduto}"/>
+                            <p:column headerText="Nº Operação" style="width:100px; text-align:center;">
+                                <h:outputText value="#{s.idSaidaArmazem}"/>
                             </p:column>
 
-                            <p:column headerText="Saída" style="width:110px; text-align:center;">
+                            <p:column headerText="Produto" style="text-align:left;">
+                                <h:outputText value="#{s.idProduto.descricaoProduto}"/>
+                            </p:column>
+
+                            <p:column headerText="Sector de Destino" style="text-align:left;">
+                                <h:outputText value="#{s.sector.descricaoSector}"/>
+                            </p:column>
+
+                            <p:column headerText="Qtd. Retirada" style="width:110px; text-align:center;">
                                 <h:outputText value="#{s.quantidadeSaidaArmazem}" style="font-weight:bold; color: #495057;"/>
                             </p:column>
 
-                            <p:column headerText="Unidade" style="width:70px; text-align:center;">
-                                <h:outputText value="#{s.unidadeMedida}"/>
+                            <p:column headerText="Unidade" style="width:80px; text-align:center;">
+                                <h:outputText value="#{s.unidadeMedida != null ? s.unidadeMedida : '---'}"/>
                             </p:column>
 
-                            <p:column headerText="Stock Actual" style="width:130px; text-align:center;">
-                                <h:outputText value="#{s.entradaArmazem.produto.quantidadeExistente}" 
-                                              styleClass="#{s.entradaArmazem.produto.quantidadeExistente == 0 ? 'ui-state-error-text' : ''}"
-                                              style="#{s.entradaArmazem.produto.quantidadeExistente == 0 ? 'font-weight:bold;' : ''}"/>
+                            <p:column headerText="Data" style="width:140px; text-align:center;">
+                                <h:outputText value="#{s.dataSaidaArmazem}">
+                                    <f:convertDateTime pattern="dd/MM/yyyy HH:mm:ss" timeZone="GMT+1"/>
+                                </h:outputText>
                             </p:column>
                         </p:dataTable>
                     </div>

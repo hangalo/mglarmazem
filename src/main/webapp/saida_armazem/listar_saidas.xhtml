@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:ui="jakarta.faces.facelets"
+      xmlns:h="jakarta.faces.html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="jakarta.faces.core">
+
+    <body>
+
+        <ui:composition template="./../WEB-INF/templates/template_saida_armazem.xhtml">
+
+
+            <ui:define name="content">
+                <h:form id="formSaidasHoje">
+
+                    <p:dataTable id="tabelaSaidasHoje" 
+                                 value="#{saidaArmazemBean.listaSaidasHoje}" 
+                                 var="item"
+                                 emptyMessage="Nenhuma saída registada até ao momento."
+                                 rows="10"
+                                 paginator="true"
+                                 paginatorPosition="bottom"
+                                 rowsPerPageTemplate="5,10,20"
+                                 style="margin-top: 20px;">
+
+                        <f:facet name="header">
+                            <h:outputText value="Registo de Saídas de Hoje - " />
+                            <h:outputText value="#{saidaArmazemBean.hoje}">
+                                <f:convertDateTime pattern="dd/MM/yyyy" timeZone="Africa/Luanda" />
+                            </h:outputText>
+                        </f:facet>
+
+                        <p:column headerText="Código do Registo" style="width: 200px; text-align: center;">
+                            <h:outputText value="#{item.idSaidaArmazem}" />
+                        </p:column>
+
+                        <p:column headerText="Produto">
+                            <h:outputText value="#{item.idProduto.descricaoProduto}" /> 
+                        </p:column>
+
+                        <p:column headerText="Sector de Destino">
+                            <h:outputText value="#{item.sector.descricaoSector}" />
+                        </p:column>
+
+                        <p:column headerText="Quantidade" style="width: 120px; text-align: center;">
+                            <h:outputText value="#{item.quantidadeSaidaArmazem}" />
+                        </p:column>
+
+                        <p:column headerText="Hora" style="width: 100px; text-align: center;">
+                            <h:outputText value="#{item.dataSaidaArmazem}">
+                                <f:convertDateTime pattern="HH:mm:ss" timeZone="Africa/Luanda" />
+                            </h:outputText>
+                        </p:column>
+
+                    </p:dataTable>
+
+                </h:form>
+            </ui:define>
+
+           
+
+        </ui:composition>
+
+    </body>
+</html>

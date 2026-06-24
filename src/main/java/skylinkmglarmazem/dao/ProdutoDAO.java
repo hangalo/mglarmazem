@@ -9,6 +9,8 @@ import java.util.List;
 import skylink.mglarmazem.bdutil.ConnectionDB;
 import skylink.armazem.modelo.CategoriaProduto;
 import skylink.armazem.modelo.Produto;
+import skylink.armazem.modelo.Sector;
+import skylink.armazem.modelo.SaidaArmazem;
 
 public class ProdutoDAO {
 
@@ -22,195 +24,150 @@ public class ProdutoDAO {
     private static final String ATUALIZAR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente + ? WHERE id_produto = ?";
     private static final String DIMINUIR_ESTOQUE_PRODUTO = "UPDATE produto SET quantidade_existente = quantidade_existente - ? WHERE id_produto = ?";
     
-    public boolean save(Produto produto) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(INSERT);
+    private static final String LISTAR_STOCK_POR_SECTOR = 
+        "SELECT sec.id_sector, sec.descricao_sector, p.id_produto, p.descricao_produto, " +
+        "SUM(s.quantidade_saida_armazem) AS quantidade_existente, s.unidade_medida " +
+        "FROM saida_armazem s " +
+        "INNER JOIN sector sec ON s.id_sector = sec.id_sector " +
+        "INNER JOIN produto p ON s.id_produto = p.id_produto " +
+        "GROUP BY sec.id_sector, sec.descricao_sector, p.id_produto, p.descricao_produto, s.unidade_medida " +
+        "ORDER BY sec.descricao_sector ASC, quantidade_existente DESC";
+
+    public List<SaidaArmazem> listarStockPorSector() throws SQLException {
+        List<SaidaArmazem> lista = new ArrayList<>();
+        
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(LISTAR_STOCK_POR_SECTOR);
+             ResultSet rs = ps.executeQuery()) {
+             
+            while (rs.next()) {
+                Sector sec = new Sector();
+                sec.setIdSector(rs.getInt("id_sector"));
+                sec.setDescricaoSector(rs.getString("descricao_sector"));
+
+                Produto prod = new Produto();
+                prod.setIdProduto(rs.getInt("id_produto"));
+                prod.setDescricaoProduto(rs.getString("descricao_produto"));
+
+                SaidaArmazem stock = new SaidaArmazem();
+                stock.setSector(sec);
+                stock.setIdProduto(prod); 
+                stock.setQuantidadeSaidaArmazem(rs.getInt("quantidade_existente"));
+                
+                String unidade = rs.getString("unidade_medida");
+                stock.setUnidadeMedida(unidade != null ? unidade : "Unidade");
+
+                lista.add(stock);
+            }
+        }
+        return lista;
+    }
+
+    public boolean save(Produto produto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(INSERT)) {
+             
             ps.setString(1, produto.getDescricaoProduto());
             ps.setInt(2, produto.getCategoriaProduto().getIdCategoria());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Erro ao inserir produto: " + e.getMessage());
-            return false;
-        } finally {
-            ConnectionDB.closeConnection(conn, ps);
         }
     }
 
-    public boolean update(Produto produto) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(UPDATE);
+    public boolean update(Produto produto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(UPDATE)) {
+             
             ps.setString(1, produto.getDescricaoProduto());
             ps.setInt(2, produto.getQuantidadeExistente());
             ps.setInt(3, produto.getCategoriaProduto().getIdCategoria());
             ps.setInt(4, produto.getIdProduto());
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Erro ao actualizar produto: " + e.getMessage());
-            return false;
-        } finally {
-            ConnectionDB.closeConnection(conn, ps);
         }
     }
 
-    public boolean delete(int idProduto) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(DELETE);
+    public boolean delete(int idProduto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(DELETE)) {
+             
             ps.setInt(1, idProduto);
             return ps.executeUpdate() > 0;
-        } catch (SQLException e) {
-            System.err.println("Erro ao eliminar produto: " + e.getMessage());
-            return false;
-        } finally {
-            ConnectionDB.closeConnection(conn, ps);
         }
     }
 
-    public List<Produto> listarTudo() {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public List<Produto> listarTudo() throws SQLException {
         List<Produto> lista = new ArrayList<>();
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(LISTAR_TUDO);
-            rs = ps.executeQuery();
+        
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(LISTAR_TUDO);
+             ResultSet rs = ps.executeQuery()) {
+             
             while (rs.next()) {
                 lista.add(mapearResultSet(rs));
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao listar produtos: " + e.getMessage());
-        } finally {
-            ConnectionDB.closeConnection(conn, ps, rs);
         }
         return lista;
     }
 
-    public List<Produto> listarPorCategoria(int idCategoriaFiltro) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
+    public List<Produto> listarPorCategoria(int idCategoriaFiltro) throws SQLException {
         List<Produto> lista = new ArrayList<>();
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(LISTAR_POR_CATEGORIA);
+        
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(LISTAR_POR_CATEGORIA)) {
+             
             ps.setInt(1, idCategoriaFiltro);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                lista.add(mapearResultSet(rs));
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearResultSet(rs));
+                }
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao filtrar por categoria: " + e.getMessage());
-        } finally {
-            ConnectionDB.closeConnection(conn, ps, rs);
         }
         return lista;
     }
     
-    public boolean updateAumentarQuantidade(Integer quantidade, Integer idProduto) {
-        boolean bl;
-        PreparedStatement ps = null;
-        Connection conn = null;
-        boolean flagControlo = false;
-        try {
-            System.out.println("Quantidade 1>>>>>>>>>>" + quantidade);
-            conn = ConnectionDB.getConnection();
+    public boolean updateAumentarQuantidade(Integer quantidade, Integer idProduto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection()) {
             conn.setAutoCommit(false);
-            ps = conn.prepareStatement(ATUALIZAR_ESTOQUE_PRODUTO);
-            ps.setInt(1, quantidade);
-            ps.setInt(2, idProduto);
-            int retorno = ps.executeUpdate();
-            conn.commit();
-            if (retorno > 0) {
-                System.out.println("StockProdutoDAO:update AumentarQuantidade Dados quantidade aumentada com sucesso com sucesso: " + ps.getUpdateCount());
-                flagControlo = true;
+            try (PreparedStatement ps = conn.prepareStatement(ATUALIZAR_ESTOQUE_PRODUTO)) {
+                ps.setInt(1, quantidade);
+                ps.setInt(2, idProduto);
+                int retorno = ps.executeUpdate();
+                conn.commit();
+                return retorno > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-            bl = flagControlo;
         }
-        catch (SQLException e) {
-            boolean bl2;
-            try {
-                System.out.println("Erro ao inserir dados: " + e.getMessage());
-                bl2 = false;
-            }
-            catch (Throwable throwable) {
-                ConnectionDB.closeConnection(conn, ps);
-                throw throwable;
-            }
-            ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-            return bl2;
-        }
-        ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-        return bl;
     }
     
-    public boolean updateDiminuirQuantidade(Integer quantidade, Integer idProduto) {
-        boolean bl;
-        PreparedStatement ps = null;
-        Connection conn = null;
-        boolean flagControlo = false;
-        try {
-            System.out.println("Quantidade a diminuir >>>>>>>>>>" + quantidade);
-            conn = ConnectionDB.getConnection();
+    public boolean updateDiminuirQuantidade(Integer quantidade, Integer idProduto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection()) {
             conn.setAutoCommit(false);
-            
-            ps = conn.prepareStatement(DIMINUIR_ESTOQUE_PRODUTO); 
-            
-            ps.setInt(1, quantidade);
-            ps.setInt(2, idProduto);
-            int retorno = ps.executeUpdate();
-            conn.commit();
-            
-            if (retorno > 0) {
-                System.out.println("StockProdutoDAO:updateDiminuirQuantidade Dados quantidade diminuída com sucesso: " + ps.getUpdateCount());
-                flagControlo = true;
+            try (PreparedStatement ps = conn.prepareStatement(DIMINUIR_ESTOQUE_PRODUTO)) {
+                ps.setInt(1, quantidade);
+                ps.setInt(2, idProduto);
+                int retorno = ps.executeUpdate();
+                conn.commit();
+                return retorno > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-            bl = flagControlo;
         }
-        catch (SQLException e) {
-            boolean bl2;
-            try {
-                System.out.println("Erro ao diminuir dados no estoque: " + e.getMessage());
-                bl2 = false;
-            }
-            catch (Throwable throwable) {
-                ConnectionDB.closeConnection(conn, ps);
-                throw throwable;
-            }
-            ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-            return bl2;
-        }
-        ConnectionDB.closeConnection((Connection)conn, (PreparedStatement)ps);
-        return bl;
     }
 
-    public Produto buscarPorCodigo(int idProduto) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        Produto produto = null;
-        try {
-            conn = ConnectionDB.getConnection();
-            ps = conn.prepareStatement(BUSCAR_POR_CODIGO);
+    public Produto buscarPorCodigo(int idProduto) throws SQLException {
+        try (Connection conn = ConnectionDB.getConnection();
+             PreparedStatement ps = conn.prepareStatement(BUSCAR_POR_CODIGO)) {
+             
             ps.setInt(1, idProduto);
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                produto = mapearResultSet(rs);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapearResultSet(rs);
+                }
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao buscar produto: " + e.getMessage());
-        } finally {
-            ConnectionDB.closeConnection(conn, ps, rs);
         }
-        return produto;
+        return null;
     }
 
     private Produto mapearResultSet(ResultSet rs) throws SQLException {
@@ -225,7 +182,6 @@ public class ProdutoDAO {
         return p;
     }
     
-    
     public int buscarQuantidadeAtual(int idProduto) throws SQLException {
         String sql = "SELECT quantidade_existente FROM produto WHERE id_produto = ?";
         
@@ -233,7 +189,6 @@ public class ProdutoDAO {
              PreparedStatement ps = conn.prepareStatement(sql)) {
             
             ps.setInt(1, idProduto);
-            
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt("quantidade_existente"); 

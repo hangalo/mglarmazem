@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import skylink.armazem.modelo.Produto;
 import skylink.mglarmazem.modelo.EntradaArmazem;
 import skylinkmglarmazem.dao.EntradaArmazemDAO;
@@ -43,7 +45,11 @@ public class EntradaArmazemBean implements Serializable {
     @PostConstruct
     public void init() {
         novo();
-        this.listaProdutos = produtoDAO.listarTudo();
+        try {
+            this.listaProdutos = produtoDAO.listarTudo();
+        } catch (SQLException ex) {
+            Logger.getLogger(EntradaArmazemBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void calcularTotal() {

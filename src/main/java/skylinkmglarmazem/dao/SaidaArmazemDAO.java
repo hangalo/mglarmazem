@@ -25,6 +25,8 @@ public class SaidaArmazemDAO {
 
     private static final String LISTAR_POR_SECTOR_E_DATAS = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.unidade_medida, s.id_produto, p.descricao_produto, sec.descricao_sector FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE s.id_sector = ? AND s.data_saida_armazem BETWEEN ? AND ? ORDER BY s.data_saida_armazem DESC";
 
+    private static final String LISTAR_SAIDAS_DE_HOJE = "SELECT s.id_saida_armazem, s.data_saida_armazem, s.id_sector, s.quantidade_saida_armazem, s.unidade_medida, s.id_produto, p.descricao_produto, sec.descricao_sector FROM saida_armazem s INNER JOIN produto p ON s.id_produto = p.id_produto INNER JOIN sector sec ON s.id_sector = sec.id_sector WHERE DATE(s.data_saida_armazem) = CURDATE() ORDER BY s.data_saida_armazem DESC";
+
     public boolean registrarSaida(SaidaArmazem saida) throws SQLException {
         try (Connection conn = ConnectionDB.getConnection(); PreparedStatement psInsert = conn.prepareStatement(INSERT)) {
 
@@ -37,6 +39,40 @@ public class SaidaArmazemDAO {
             psInsert.executeUpdate();
             return true;
         }
+    }
+
+    public List<SaidaArmazem> listarSaidasDeHoje() throws SQLException {
+        List<SaidaArmazem> lista = new ArrayList<>();
+
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(LISTAR_SAIDAS_DE_HOJE);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Sector sec = new Sector();
+                sec.setIdSector(rs.getInt("id_sector"));
+                sec.setDescricaoSector(rs.getString("descricao_sector"));
+
+                Produto prod = new Produto();
+                prod.setIdProduto(rs.getInt("id_produto"));
+                prod.setDescricaoProduto(rs.getString("descricao_produto"));
+
+                EntradaArmazem ent = new EntradaArmazem();
+                ent.setProduto(prod);
+
+                SaidaArmazem s = new SaidaArmazem(
+                        rs.getInt("id_saida_armazem"),
+                        rs.getTimestamp("data_saida_armazem"),
+                        sec,
+                        prod,
+                        rs.getInt("quantidade_saida_armazem"),
+                        rs.getString("unidade_medida"),
+                        ent
+                );
+                lista.add(s);
+            }
+        }
+        return lista;
     }
 
     public List<SaidaArmazem> listarPorSector(int idSector, java.util.Date inicio, java.util.Date fim) throws SQLException {
@@ -57,35 +93,35 @@ public class SaidaArmazemDAO {
         return lista;
     }
 
- public List<EntradaArmazem> pesquisarSaidasPorProduto(java.util.Date inicio, java.util.Date fim) throws SQLException {
-    List<EntradaArmazem> lista = new ArrayList<>();
-    if (inicio == null || fim == null) return lista;
+    public List<EntradaArmazem> pesquisarSaidasPorProduto(java.util.Date inicio, java.util.Date fim) throws SQLException {
+        List<EntradaArmazem> lista = new ArrayList<>();
+        if (inicio == null || fim == null) return lista;
 
-    try (Connection conn = ConnectionDB.getConnection(); 
-         PreparedStatement ps = conn.prepareStatement(PESQUISAR_SAIDAS_PRODUTO)) {
+        try (Connection conn = ConnectionDB.getConnection(); 
+             PreparedStatement ps = conn.prepareStatement(PESQUISAR_SAIDAS_PRODUTO)) {
 
-        ps.setTimestamp(1, new java.sql.Timestamp(inicio.getTime()));
-        ps.setTimestamp(2, new java.sql.Timestamp(fim.getTime()));
+            ps.setTimestamp(1, new java.sql.Timestamp(inicio.getTime()));
+            ps.setTimestamp(2, new java.sql.Timestamp(fim.getTime()));
 
-        try (ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                EntradaArmazem item = new EntradaArmazem();
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    EntradaArmazem item = new EntradaArmazem();
 
-                Produto p = new Produto();
-                p.setDescricaoProduto(rs.getString("descricao_prod")); 
+                    Produto p = new Produto();
+                    p.setDescricaoProduto(rs.getString("descricao_prod")); 
 
-                item.setProduto(p);
-                item.setQuantidadeProduto(rs.getInt("total_quantidade")); 
-                item.setUnidadeMedida(rs.getString("unidade"));          
-                
-                item.setTotalValorRelatorio(java.math.BigDecimal.ZERO);
+                    item.setProduto(p);
+                    item.setQuantidadeProduto(rs.getInt("total_quantidade")); 
+                    item.setUnidadeMedida(rs.getString("unidade"));          
+                    
+                    item.setTotalValorRelatorio(java.math.BigDecimal.ZERO);
 
-                lista.add(item);
+                    lista.add(item);
+                }
             }
         }
+        return lista;
     }
-    return lista;
-}
 
     public List<SaidaArmazem> listarEntreDatasPorSector(int idSector, java.util.Date inicio, java.util.Date fim) throws SQLException {
         List<SaidaArmazem> lista = new ArrayList<>();

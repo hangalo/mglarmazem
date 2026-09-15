@@ -9,8 +9,8 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import skylink.armazem.modelo.CategoriaProduto;
 import skylink.armazem.modelo.Produto;
-import skylink.armazem.modelo.SaidaArmazem; 
 import skylinkmglarmazem.dao.ProdutoDAO;
 
 /**
@@ -24,65 +24,102 @@ public class ProdutoBean implements Serializable {
 
     private Produto produto;
     private List<Produto> listaProdutos;
-    private List<SaidaArmazem> listaStockPorSector;
-    private Integer filtroIdCategoria; 
+    private List<Produto> listaQuantidadeExistente;
+
+    private Integer filtroIdCategoria;
+    private String filtroDescricaoProduto;
+    private List<CategoriaProduto> listaCategorias;
 
     private final ProdutoDAO dao = new ProdutoDAO();
 
     @PostConstruct
     public void init() {
         novo();
-        listar();
+        carregarCategorias();
+        this.listaProdutos = new ArrayList<>();
+        this.listaQuantidadeExistente = new ArrayList<>();
     }
 
     public void novo() {
         produto = new Produto();
-        produto.setQuantidadeExistente(0); 
-    }
-
-    public void salvar() {
-        try {
-            boolean sucesso;
-            if (produto.getIdProduto() == null || produto.getIdProduto() == 0) {
-                sucesso = dao.save(produto);
-            } else {
-                sucesso = dao.update(produto);
-            }
-
-            if (sucesso) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Produto guardado com sucesso!");
-                novo();   
-                listar();
-            } else {
-                adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Não foi possível guardar o produto.");
-            }
-        } catch (SQLException e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro na Base de Dados", e.getMessage());
-        } catch (Exception e) {
-            adicionarMensagem(FacesMessage.SEVERITY_FATAL, "Erro Crítico", e.getMessage());
-        }
+        produto.setQuantidadeExistente(0);
     }
 
     public void listar() {
         try {
             this.listaProdutos = dao.listarTudo();
-            this.listaStockPorSector = dao.listarStockPorSector();
         } catch (SQLException e) {
             this.listaProdutos = new ArrayList<>();
-            this.listaStockPorSector = new ArrayList<>();
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro ao carregar listas", e.getMessage());
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível listar os produtos.");
+        }
+    }
+
+    public void carregarQuantidadeExistente() {
+        try {
+            this.listaQuantidadeExistente = dao.listarQuantidadeExistente();
+        } catch (SQLException e) {
+            this.listaQuantidadeExistente = new ArrayList<>();
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível carregar os produtos em falta.");
+        }
+    }
+
+    public void carregarCategorias() {
+        try {
+            this.listaCategorias = dao.listarCategorias();
+        } catch (SQLException e) {
+            this.listaCategorias = new ArrayList<>();
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível carregar as categorias.");
         }
     }
 
     public void pesquisarPorCategoria() {
         try {
-            if (filtroIdCategoria != null && filtroIdCategoria > 0) {
-                listaProdutos = dao.listarPorCategoria(filtroIdCategoria);
+            if (filtroIdCategoria == null) {
+                this.listaProdutos = dao.listarTudo();
             } else {
-                listar(); 
+                this.listaProdutos = dao.listarPorCategoria(filtroIdCategoria);
             }
         } catch (SQLException e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro ao filtrar categoria", e.getMessage());
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível pesquisar os produtos.");
+        }
+    }
+
+    public void verTodos() {
+        this.filtroIdCategoria = null;
+        this.filtroDescricaoProduto = null;
+        listar();
+    }
+
+    public void limparFiltros() {
+        this.filtroIdCategoria = null;
+        this.filtroDescricaoProduto = null;
+        this.listaProdutos = new ArrayList<>();
+    }
+
+    public void salvar() {
+        try {
+            boolean sucesso = (produto.getIdProduto() == null
+                    || produto.getIdProduto() == 0)
+                    ? dao.save(produto)
+                    : dao.update(produto);
+
+            if (sucesso) {
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso",
+                        "Produto guardado com sucesso!");
+                novo();
+                listar();
+                carregarQuantidadeExistente();
+            } else {
+                adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
+                        "Nenhum registo foi afectado.");
+            }
+        } catch (SQLException e) {
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Erro ao guardar o produto.");
         }
     }
 
@@ -91,61 +128,60 @@ public class ProdutoBean implements Serializable {
     }
 
     public void eliminar(Integer id) {
+        if (id == null) {
+            adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
+                    "ID do produto inválido.");
+            return;
+        }
         try {
             if (dao.delete(id)) {
-                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Produto removido.");
+                adicionarMensagem(FacesMessage.SEVERITY_INFO, "Sucesso",
+                        "Produto removido com sucesso.");
                 listar();
+                carregarQuantidadeExistente();
             } else {
-                adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao eliminar produto.");
+                adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
+                        "Produto não encontrado.");
             }
         } catch (SQLException e) {
-            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro de integridade/eliminação", e.getMessage());
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Erro ao remover o produto.");
         }
     }
-    
-    public void limparParaPesquisa() {
-        this.listaProdutos = null; 
-        this.filtroIdCategoria = null; 
+
+    private void adicionarMensagem(FacesMessage.Severity severidade,
+                                   String resumo, String detalhe) {
+        FacesContext.getCurrentInstance()
+                .addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
-    private void adicionarMensagem(FacesMessage.Severity severidade, String resumo, String detalhe) {
-        FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(severidade, resumo, detalhe));
-    }
+    public Produto getProduto() { return produto; }
+    public void setProduto(Produto produto) { this.produto = produto; }
 
-    public Produto getProduto() {
-        return produto;
-    }
+    public List<Produto> getListaProdutos() { return listaProdutos; }
+    public void setListaProdutos(List<Produto> l) { this.listaProdutos = l; }
 
-    public void setProduto(Produto produto) {
-        this.produto = produto;
-    }
+    public List<Produto> getListaQuantidadeExistente() { return listaQuantidadeExistente; }
+    public void setListaQuantidadeExistente(List<Produto> l) { this.listaQuantidadeExistente = l; }
 
-    public List<Produto> getListaProdutos() {
-        return listaProdutos;
-    }
+    public Integer getFiltroIdCategoria() { return filtroIdCategoria; }
+    public void setFiltroIdCategoria(Integer filtroIdCategoria) { this.filtroIdCategoria = filtroIdCategoria; }
 
-    public void setListaProdutos(List<Produto> listaProdutos) {
-        this.listaProdutos = listaProdutos;
-    }
+    public String getFiltroDescricaoProduto() { return filtroDescricaoProduto; }
+    public void setFiltroDescricaoProduto(String filtroDescricaoProduto) { this.filtroDescricaoProduto = filtroDescricaoProduto; }
 
-    public List<SaidaArmazem> getListaStockPorSector() {
-        return listaStockPorSector;
-    }
-
-    public void setListaStockPorSector(List<SaidaArmazem> listaStockPorSector) {
-        this.listaStockPorSector = listaStockPorSector;
-    }
-
-    public Integer getFiltroIdCategoria() {
-        return filtroIdCategoria;
-    }
-
-    public void setFiltroIdCategoria(Integer filtroIdCategoria) {
-        this.filtroIdCategoria = filtroIdCategoria;
-    }
+    public List<CategoriaProduto> getListaCategorias() { return listaCategorias; }
+    public void setListaCategorias(List<CategoriaProduto> listaCategorias) { this.listaCategorias = listaCategorias; }
 
     @Override
     public String toString() {
-        return "ProdutoBean{" + "produto=" + produto + ", listaProdutos=" + listaProdutos + ", listaStockPorSector=" + listaStockPorSector + ", filtroIdCategoria=" + filtroIdCategoria + ", dao=" + dao + '}';
+        return "ProdutoBean{"
+                + "produto=" + produto
+                + ", listaProdutos=" + listaProdutos
+                + ", listaQuantidadeExistente=" + listaQuantidadeExistente
+                + ", filtroIdCategoria=" + filtroIdCategoria
+                + ", filtroDescricaoProduto='" + filtroDescricaoProduto + '\''
+                + ", listaCategorias=" + listaCategorias
+                + '}';
     }
 }

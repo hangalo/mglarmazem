@@ -69,7 +69,6 @@ public class Produto implements Serializable {
             return false;
         }
         final Produto other = (Produto) obj;
-
         return Objects.equals(this.idProduto, other.idProduto);
     }
 
@@ -77,5 +76,4 @@ public class Produto implements Serializable {
     public String toString() {
         return String.format("%s[idProduto=%d]", getClass().getSimpleName(), getIdProduto());
     }
-
 }

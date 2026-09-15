@@ -1,88 +1,95 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:ui="jakarta.faces.facelets"
-      xmlns:h="jakarta.faces.html"
       xmlns:p="http://primefaces.org/ui"
+      xmlns:h="jakarta.faces.html"
       xmlns:f="jakarta.faces.core">
 
     <body>
 
-        <ui:composition template="./../WEB-INF/templates/template_estoque.xhtml">
+        <ui:composition template="/WEB-INF/templates/template_estoque.xhtml">
             <ui:define name="content">
-                <h:form id="formEstoque">
-                    <p:growl id="msges" showDetail="true" skipDetailIfEqualsSummary="true" />
 
-                    <p:panel header=" Análise de Estoque" style="margin-bottom:20px">
-                        <h:panelGrid columns="7" cellpadding="5">
+                <h:form id="frmTabela">
+                    <p:growl id="msgs" showDetail="true" />
 
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <h:outputLabel value="Sector:" style="color: #495057; font-size: 0.95em; white-space: nowrap;"/>
-                                <p:selectOneMenu id="sector"
-                                                 value="#{saidaArmazemBean.saida.sector}"
-                                                 required="true"
-                                                 converter="omnifaces.SelectItemsConverter"
-                                                 requiredMessage="Seleccione o sector">
-                                    <f:selectItem itemLabel="Selecione o Sector" itemValue="#{null}" noSelectionOption="true"/>
-                                    <f:selectItems value="#{saidaArmazemBean.listaSectores}"
-                                                   var="sec"
-                                                   itemValue="#{sec}"
-                                                   itemLabel="#{sec.descricaoSector}"/>
-                                </p:selectOneMenu>
-                            </div>
+                    <p:panel style="max-width:1000px; margin:20px 0 20px 0;
+                                    border:1px solid #e0e0e0; border-radius:4px; box-shadow:none;">
 
-                            <p:outputLabel for="dataIni" value="Data Início:" />
-                            <p:datePicker id="dataIni" value="#{estoqueBean.dataInicio}" pattern="yyyy-MM-dd HH:mm:ss" showIcon="true" required="true" />
+                        <div style="text-align:left; padding:10px 0 20px 10px;">
+                            <h2 style="font-weight:500; color:#212529; font-size:1.5rem; margin:0;">
+                                Quantidade Existente em Stock
+                            </h2>
+                        </div>
 
-                            <p:outputLabel for="dataFim" value="Data Fim:" />
-                            <p:datePicker id="dataFim" value="#{estoqueBean.dataFim}" pattern="yyyy-MM-dd HH:mm:ss" showIcon="true" required="true" />
+                        <p:panelGrid columns="3" layout="grid"
+                                     styleClass="ui-panelgrid-blank"
+                                     style="margin-bottom:15px;">
 
-                            <h:panelGroup>
-                                <p:commandButton value="Pesquisar" action="#{estoqueBean.pesquisarEstoque()}" 
-                                                 update="tabelaEstoque msges" icon="pi pi-search" styleClass="ui-button-success" />
-                                <p:commandButton value="Limpar" action="#{estoqueBean.limparFiltros()}" 
-                                                 update="formEstoque" icon="pi pi-refresh" styleClass="ui-button-secondary" style="margin-left: 10px;" />
-                            </h:panelGroup>
+                            <p:outputLabel for="filtroCategoria" value="Categoria:" />
+                            <p:selectOneMenu id="filtroCategoria"
+                                             value="#{produtoBean.filtroIdCategoria}"
+                                             style="width:250px;">
+                                <f:selectItem itemLabel="-- Todas --" itemValue="#{null}" />
+                                <f:selectItems value="#{produtoBean.listaCategorias}"
+                                               var="cat"
+                                               itemLabel="#{cat.descricaoCategoria}"
+                                               itemValue="#{cat.idCategoria}" />
+                            </p:selectOneMenu>
+                            <p:spacer width="10" />
 
-                        </h:panelGrid>
+                            <p:outputLabel for="filtroProduto" value="Produto:" />
+                            <p:inputText id="filtroProduto"
+                                         value="#{produtoBean.filtroDescricaoProduto}"
+                                         placeholder="Nome do produto..."
+                                         style="width:250px;" />
+                            <p:spacer width="10" />
+
+                            <p:spacer width="10" />
+                            <p:commandButton value="Filtrar"
+                                             icon="pi pi-search"
+                                             action="#{produtoBean.filtrar}"
+                                             update="tabelaQuantidadeExistente msgs"
+                                             style="margin-right:8px;" />
+                            <p:commandButton value="Limpar"
+                                             icon="pi pi-times"
+                                             action="#{produtoBean.limparFiltros}"
+                                             update="frmTabela"
+                                             styleClass="ui-button-secondary" />
+                        </p:panelGrid>
+
+                        <p:dataTable id="tabelaQuantidadeExistente"
+                                     value="#{produtoBean.listaQuantidadeExistente}"
+                                     var="prod"
+                                     sortBy="#{prod.descricaoProduto}"
+                                     styleClass="ui-datatable-striped"
+                                     style="margin-top:10px; border:none;"
+                                     emptyMessage="Nenhum produto em stock.">
+
+                            <p:column headerText="Nome do produto"
+                                      sortBy="#{prod.descricaoProduto}"
+                                      style="text-align:left; padding:14px 16px; color:#495057;">
+                                <h:outputText value="#{prod.descricaoProduto}" />
+                            </p:column>
+
+                            <p:column headerText="Categoria"
+                                      sortBy="#{prod.categoriaProduto.descricaoCategoria}"
+                                      style="width:250px; text-align:left; padding:14px 16px; color:#495057;">
+                                <h:outputText value="#{prod.categoriaProduto.descricaoCategoria}" />
+                            </p:column>
+
+                            <p:column headerText="Quantidade em stock"
+                                      sortBy="#{prod.quantidadeExistente}"
+                                      style="width:200px; text-align:left; padding:14px 16px; color:#495057;">
+                                <h:outputText value="#{prod.quantidadeExistente}" style="font-weight:400;" />
+                            </p:column>
+
+                        </p:dataTable>
                     </p:panel>
-
-                    <p:dataTable id="tabelaEstoque" value="#{s}" var="est"
-                                 emptyMessage="Nenhum registro de estoque encontrado para os filtros aplicados."
-                                 paginator="true" rows="10" paginatorPosition="bottom"
-                                 rowsPerPageTemplate="5,10,20"
-                                 stripedRows="true" showGridlines="true">
-
-                        <f:facet name="header">
-                            <h2>  Movimentações do Período vs.  Estoque Atual </h2>
-                        </f:facet>
-
-                        <p:column headerText="Sector de Destino" style="text-align:left;">
-                            <h:outputText value="#{s.sector.descricaoSector}"/>
-                        </p:column>
-
-                        <p:column headerText="Descrição do Produto" sortBy="#{a.produto.descricaoProduto}" style="width:400px; text-align:left;">
-                            <h:outputText value="#{a.produto.descricaoProduto}"/>
-                        </p:column>
-
-                        <p:column headerText="Total Entradas" style="text-align: center; color: #2e7d32; font-weight: bold;">
-                            <h:outputText value="#{est.totalEntradas}" />
-                        </p:column>
-                        <p:column headerText="Total Saídas" sortBy="#{a.quantidadeProduto}" style="width:200px; text-align:center;">
-                            <h:outputText value="#{a.quantidadeProduto}" style="font-weight:bold;"/>
-                        </p:column>
-
-                        <p:column headerText="Qtd Existente (Físico)" style="text-align: center; background-color: #f5f5f5; font-weight: bold;">
-                            <h:outputText value="#{p.quantidadeExistente}" 
-                                          styleClass="#{p.quantidadeExistente &lt;= 5 ? 'text-danger font-bold' : ''}" />
-                        </p:column>
-
-                    </p:dataTable>
                 </h:form>
+
             </ui:define>
-
-
-
         </ui:composition>
 
     </body>

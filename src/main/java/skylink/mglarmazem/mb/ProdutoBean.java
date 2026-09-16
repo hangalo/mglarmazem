@@ -23,7 +23,8 @@ public class ProdutoBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Produto produto;
-    private List<Produto> listaProdutos;
+    private List<Produto> listaProdutos;            
+    private List<Produto> listaProdutosCombo;      
     private List<Produto> listaQuantidadeExistente;
 
     private Integer filtroIdCategoria;
@@ -36,8 +37,11 @@ public class ProdutoBean implements Serializable {
     public void init() {
         novo();
         carregarCategorias();
+
         this.listaProdutos = new ArrayList<>();
         this.listaQuantidadeExistente = new ArrayList<>();
+
+        carregarProdutosCombo();
     }
 
     public void novo() {
@@ -52,6 +56,16 @@ public class ProdutoBean implements Serializable {
             this.listaProdutos = new ArrayList<>();
             adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
                     "Não foi possível listar os produtos.");
+        }
+    }
+
+    public void carregarProdutosCombo() {
+        try {
+            this.listaProdutosCombo = dao.listarTudo();
+        } catch (SQLException e) {
+            this.listaProdutosCombo = new ArrayList<>();
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível carregar os produtos para os combos.");
         }
     }
 
@@ -75,6 +89,7 @@ public class ProdutoBean implements Serializable {
         }
     }
 
+    
     public void pesquisarPorCategoria() {
         try {
             if (filtroIdCategoria == null) {
@@ -100,6 +115,7 @@ public class ProdutoBean implements Serializable {
         this.listaProdutos = new ArrayList<>();
     }
 
+    
     public void salvar() {
         try {
             boolean sucesso = (produto.getIdProduto() == null
@@ -113,6 +129,7 @@ public class ProdutoBean implements Serializable {
                 novo();
                 listar();
                 carregarQuantidadeExistente();
+                carregarProdutosCombo();     
             } else {
                 adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
                         "Nenhum registo foi afectado.");
@@ -139,6 +156,7 @@ public class ProdutoBean implements Serializable {
                         "Produto removido com sucesso.");
                 listar();
                 carregarQuantidadeExistente();
+                carregarProdutosCombo();           
             } else {
                 adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
                         "Produto não encontrado.");
@@ -149,17 +167,22 @@ public class ProdutoBean implements Serializable {
         }
     }
 
+   
     private void adicionarMensagem(FacesMessage.Severity severidade,
                                    String resumo, String detalhe) {
         FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
+    
     public Produto getProduto() { return produto; }
     public void setProduto(Produto produto) { this.produto = produto; }
 
     public List<Produto> getListaProdutos() { return listaProdutos; }
     public void setListaProdutos(List<Produto> l) { this.listaProdutos = l; }
+
+    public List<Produto> getListaProdutosCombo() { return listaProdutosCombo; }
+    public void setListaProdutosCombo(List<Produto> l) { this.listaProdutosCombo = l; }
 
     public List<Produto> getListaQuantidadeExistente() { return listaQuantidadeExistente; }
     public void setListaQuantidadeExistente(List<Produto> l) { this.listaQuantidadeExistente = l; }
@@ -178,6 +201,7 @@ public class ProdutoBean implements Serializable {
         return "ProdutoBean{"
                 + "produto=" + produto
                 + ", listaProdutos=" + listaProdutos
+                + ", listaProdutosCombo=" + listaProdutosCombo
                 + ", listaQuantidadeExistente=" + listaQuantidadeExistente
                 + ", filtroIdCategoria=" + filtroIdCategoria
                 + ", filtroDescricaoProduto='" + filtroDescricaoProduto + '\''

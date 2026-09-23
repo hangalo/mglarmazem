@@ -9,13 +9,11 @@ import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import skylink.armazem.modelo.CategoriaProduto;
 import skylink.armazem.modelo.Produto;
 import skylinkmglarmazem.dao.ProdutoDAO;
 
-/**
- * @author Henriques
- */
 @Named("produtoBean")
 @ViewScoped
 public class ProdutoBean implements Serializable {
@@ -23,8 +21,8 @@ public class ProdutoBean implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Produto produto;
-    private List<Produto> listaProdutos;            
-    private List<Produto> listaProdutosCombo;      
+    private List<Produto> listaProdutos;
+    private List<Produto> listaProdutosCombo;
     private List<Produto> listaQuantidadeExistente;
 
     private Integer filtroIdCategoria;
@@ -37,11 +35,9 @@ public class ProdutoBean implements Serializable {
     public void init() {
         novo();
         carregarCategorias();
-
-        this.listaProdutos = new ArrayList<>();
-        this.listaQuantidadeExistente = new ArrayList<>();
-
         carregarProdutosCombo();
+        carregarQuantidadeExistente();   
+        this.listaProdutos = new ArrayList<>();
     }
 
     public void novo() {
@@ -75,7 +71,7 @@ public class ProdutoBean implements Serializable {
         } catch (SQLException e) {
             this.listaQuantidadeExistente = new ArrayList<>();
             adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
-                    "Não foi possível carregar os produtos em falta.");
+                    "Não foi possível carregar os produtos em stock.");
         }
     }
 
@@ -89,7 +85,18 @@ public class ProdutoBean implements Serializable {
         }
     }
 
-    
+    public void filtrar() {
+        try {
+            this.listaQuantidadeExistente =
+                    dao.listarQuantidadeExistenteFiltrado(filtroIdCategoria,
+                                                          filtroDescricaoProduto);
+        } catch (SQLException e) {
+            this.listaQuantidadeExistente = new ArrayList<>();
+            adicionarMensagem(FacesMessage.SEVERITY_ERROR, "Erro",
+                    "Não foi possível filtrar os produtos em stock.");
+        }
+    }
+
     public void pesquisarPorCategoria() {
         try {
             if (filtroIdCategoria == null) {
@@ -112,10 +119,9 @@ public class ProdutoBean implements Serializable {
     public void limparFiltros() {
         this.filtroIdCategoria = null;
         this.filtroDescricaoProduto = null;
-        this.listaProdutos = new ArrayList<>();
+        carregarQuantidadeExistente();     // recarrega tudo
     }
 
-    
     public void salvar() {
         try {
             boolean sucesso = (produto.getIdProduto() == null
@@ -129,7 +135,7 @@ public class ProdutoBean implements Serializable {
                 novo();
                 listar();
                 carregarQuantidadeExistente();
-                carregarProdutosCombo();     
+                carregarProdutosCombo();
             } else {
                 adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
                         "Nenhum registo foi afectado.");
@@ -156,7 +162,7 @@ public class ProdutoBean implements Serializable {
                         "Produto removido com sucesso.");
                 listar();
                 carregarQuantidadeExistente();
-                carregarProdutosCombo();           
+                carregarProdutosCombo();
             } else {
                 adicionarMensagem(FacesMessage.SEVERITY_WARN, "Aviso",
                         "Produto não encontrado.");
@@ -167,14 +173,12 @@ public class ProdutoBean implements Serializable {
         }
     }
 
-   
     private void adicionarMensagem(FacesMessage.Severity severidade,
                                    String resumo, String detalhe) {
         FacesContext.getCurrentInstance()
                 .addMessage(null, new FacesMessage(severidade, resumo, detalhe));
     }
 
-    
     public Produto getProduto() { return produto; }
     public void setProduto(Produto produto) { this.produto = produto; }
 
@@ -197,15 +201,54 @@ public class ProdutoBean implements Serializable {
     public void setListaCategorias(List<CategoriaProduto> listaCategorias) { this.listaCategorias = listaCategorias; }
 
     @Override
-    public String toString() {
-        return "ProdutoBean{"
-                + "produto=" + produto
-                + ", listaProdutos=" + listaProdutos
-                + ", listaProdutosCombo=" + listaProdutosCombo
-                + ", listaQuantidadeExistente=" + listaQuantidadeExistente
-                + ", filtroIdCategoria=" + filtroIdCategoria
-                + ", filtroDescricaoProduto='" + filtroDescricaoProduto + '\''
-                + ", listaCategorias=" + listaCategorias
-                + '}';
+    public int hashCode() {
+        int hash = 7;
+        hash = 83 * hash + Objects.hashCode(this.produto);
+        hash = 83 * hash + Objects.hashCode(this.listaProdutos);
+        hash = 83 * hash + Objects.hashCode(this.listaProdutosCombo);
+        hash = 83 * hash + Objects.hashCode(this.listaQuantidadeExistente);
+        hash = 83 * hash + Objects.hashCode(this.filtroIdCategoria);
+        hash = 83 * hash + Objects.hashCode(this.filtroDescricaoProduto);
+        hash = 83 * hash + Objects.hashCode(this.listaCategorias);
+        hash = 83 * hash + Objects.hashCode(this.dao);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ProdutoBean other = (ProdutoBean) obj;
+        if (!Objects.equals(this.filtroDescricaoProduto, other.filtroDescricaoProduto)) {
+            return false;
+        }
+        if (!Objects.equals(this.produto, other.produto)) {
+            return false;
+        }
+        if (!Objects.equals(this.listaProdutos, other.listaProdutos)) {
+            return false;
+        }
+        if (!Objects.equals(this.listaProdutosCombo, other.listaProdutosCombo)) {
+            return false;
+        }
+        if (!Objects.equals(this.listaQuantidadeExistente, other.listaQuantidadeExistente)) {
+            return false;
+        }
+        if (!Objects.equals(this.filtroIdCategoria, other.filtroIdCategoria)) {
+            return false;
+        }
+        if (!Objects.equals(this.listaCategorias, other.listaCategorias)) {
+            return false;
+        }
+        return Objects.equals(this.dao, other.dao);
+    }
+
+
 }

@@ -40,7 +40,9 @@ public class SaidaArmazemBean implements Serializable {
     private List<EntradaArmazem> listaSaidasPorProduto   = new ArrayList<>();
     private List<SaidaArmazem>   listaDetalhadaPorSector = new ArrayList<>();
     private List<SaidaArmazem>   listaSaidas             = new ArrayList<>();
-    private List<SaidaArmazem>   listaSaidasHoje         = new ArrayList<>(); 
+    private List<SaidaArmazem>   listaSaidasHoje         = new ArrayList<>();
+
+    private Integer totalQuantidade = 0;
 
     private List<Sector>  listaSectores  = new ArrayList<>();
     private List<Produto> listaProdutos  = new ArrayList<>();
@@ -55,7 +57,7 @@ public class SaidaArmazemBean implements Serializable {
         limpar();
         try {
             carregarDropdowns();
-            carregarSaidasHoje(); 
+            carregarSaidasHoje();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Erro na inicialização do bean", e);
             addMensagem(FacesMessage.SEVERITY_ERROR, "Erro crítico",
@@ -66,7 +68,7 @@ public class SaidaArmazemBean implements Serializable {
     private void inicializarDaos() {
         if (dao        == null) dao        = new SaidaArmazemDAO();
         if (produtoDAO == null) produtoDAO = new ProdutoDAO();
-        if (sectorDAO  == null) sectorDAO  =  new SectorDAO();
+        if (sectorDAO  == null) sectorDAO  = new SectorDAO();
     }
 
     public void carregarSaidasHoje() {
@@ -109,8 +111,8 @@ public class SaidaArmazemBean implements Serializable {
 
             if (dao.registrarSaida(saida)) {
                 produtoDAO.updateDiminuirQuantidade(qtdeSaida, idProd);
-                
-                carregarSaidasHoje(); 
+
+                carregarSaidasHoje();
 
                 FacesContext.getCurrentInstance().getExternalContext().getFlash().setKeepMessages(true);
                 addMensagem(FacesMessage.SEVERITY_INFO, "Sucesso", "Saída registada com sucesso!");
@@ -124,6 +126,31 @@ public class SaidaArmazemBean implements Serializable {
             addMensagem(FacesMessage.SEVERITY_ERROR, "Erro de Base de Dados", "Falha ao comunicar com a base de dados.");
         }
         return null;
+    }
+
+    public void pesquisarPorDatas() {
+        inicializarDaos();
+        if (!validarDatas()) return;
+
+        try {
+            listaSaidas = dao.pesquisarPorDatas(dataInicio, dataFim);
+            calcularTotalQuantidade();
+            if (listaSaidas.isEmpty()) {
+                addMensagem(FacesMessage.SEVERITY_INFO, "Sem resultados", "Nenhuma saída encontrada no período.");
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, "Erro em pesquisarPorDatas", e);
+            addMensagem(FacesMessage.SEVERITY_ERROR, "Erro", "Falha ao pesquisar saídas entre datas.");
+        }
+    }
+
+    private void calcularTotalQuantidade() {
+        totalQuantidade = 0;
+        if (listaSaidas != null) {
+            for (SaidaArmazem s : listaSaidas) {
+                totalQuantidade += s.getQuantidadeSaidaArmazem();
+            }
+        }
     }
 
     public void pesquisarPorSector() {
@@ -165,6 +192,7 @@ public class SaidaArmazemBean implements Serializable {
         if (!validarDatas()) return;
         try {
             listaSaidas = dao.listarEntreDatasPorSector(saida.getSector().getIdSector(), dataInicio, dataFim);
+            calcularTotalQuantidade();
             if (listaSaidas.isEmpty()) {
                 addMensagem(FacesMessage.SEVERITY_INFO, "Sem resultados", "Nenhum registo encontrado.");
             }
@@ -190,6 +218,7 @@ public class SaidaArmazemBean implements Serializable {
         listaSaidasPorProduto   = new ArrayList<>();
         listaDetalhadaPorSector = new ArrayList<>();
         listaSaidas             = new ArrayList<>();
+        totalQuantidade         = 0;
         if (saida != null) saida.setSector(new Sector());
     }
 
@@ -225,6 +254,9 @@ public class SaidaArmazemBean implements Serializable {
     public void setDataFim(Date dataFim) { this.dataFim = dataFim; }
 
     public Date getHoje() { return hoje; }
+
+    public Integer getTotalQuantidade() { return totalQuantidade; }
+    public void setTotalQuantidade(Integer totalQuantidade) { this.totalQuantidade = totalQuantidade; }
 
     public List<SaidaArmazem> getListaSaidasHoje() { return listaSaidasHoje; }
     public void setListaSaidasHoje(List<SaidaArmazem> l) { this.listaSaidasHoje = l; }

@@ -5,7 +5,6 @@
       xmlns:h="jakarta.faces.html">
 
     <h:head>
-
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <h:outputStylesheet name="estilos.css" library="css"/>
@@ -16,10 +15,7 @@
         <div class="container">
             <div class="header">
                 <ui:insert name="top">
-
-                    <h1>🌟 Gestão de armazem</h1>
-                    <p>Skylink</p>
-
+                    <h1>🏭 Gestão de Armazém</h1>
                 </ui:insert>
             </div>
 
@@ -27,31 +23,28 @@
                 <ui:insert name="left">
                     <h3>Menu Principal</h3>
                     <ul>
-
-
-                        <li><h:link value="💼 Gestão do Estoque" outcome="/estoque_armazem/index_estoque"/></li>
-
-                        <li><h:link value="💼 Gestão de Entrada" outcome="/entrada_armazem/index_entrada_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão de Saída " outcome="/saida_armazem/index_saida_armazem"/></li>
-
-                        <li><h:link value="💼 Gestão dos Produtos" outcome="/produto/index_produtos"/></li>
+                        <li><h:link value="🗃 Gestão do Estoque" outcome="/estoque_armazem/index_estoque"/></li>
+                        <li><h:link value="📥 Gestão de Entrada" outcome="/entrada_armazem/index_entrada_armazem"/></li>
+                        <li><h:link value="📤 Gestão de Saída " outcome="/saida_armazem/index_saida_armazem"/></li>
+                        <li><h:link value="🛒  Gestão dos Produtos" outcome="/produto/index_produtos"/></li>
+                        
+                        <li>
+                            <h:form>
+                                <h:commandLink value="⏻ Sair" action="#{loginBean.sair}" styleClass="btn-sair"/>
+                            </h:form>
+                        </li>
                     </ul>
-
                 </ui:insert>
             </nav>
+            
             <main class="main">
                 <ui:insert name="content"></ui:insert>
             </main>
 
             <footer class="footer">
                 <ui:insert name="bottom">
-
                     <p>&copy; 2026 - Desenvolvido pelo grupo Skylink</p>
-                    <p>📧 contato@exemplo.com | 📱 (244) 99999-9999</p>
-
-
-
+                    <p>📧 centrofsd@gmail.com 📱 (244) 922 208 192</p>
                 </ui:insert>
             </footer>
         </div>
